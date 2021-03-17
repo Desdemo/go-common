@@ -3,6 +3,7 @@ package excel
 import (
 	"errors"
 	"github.com/desdemo/go-common/orm"
+	"github.com/tealeg/xlsx"
 	"log"
 	"reflect"
 	"strings"
@@ -34,23 +35,31 @@ type Field struct {
 	Typ      reflect.Type  // 类型
 }
 
-func (e *Entity) New(sheetName, title string, model interface{}) {
+func (e *Entity) New(sheetName, title string, tips bool, model interface{}) {
 	if sheetName != "" {
 		e.SheetName = sheetName
 	}
 	if title != "" {
 		e.Title = title
 	}
+	e.Model = model
 	fields, err := getField(model)
 	if err != nil {
 		log.Fatal(err)
 	}
 	e.Rows = fields
-
+	e.ShowRemind = tips
 }
 
 func (e *Entity) Import(bytes []byte) (interface{}, error) {
-	panic("implement me")
+	// Unmarshal
+
+	return nil, nil
+}
+
+func (e *Entity) Unmarshal(row *xlsx.Row) error {
+
+	return nil
 }
 
 func (e *Entity) Export(i interface{}) ([]byte, error) {
