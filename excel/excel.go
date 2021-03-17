@@ -2,7 +2,7 @@ package excel
 
 import (
 	"errors"
-	"git.dashoo.cn/guodj/common/orm"
+	"github.com/desdemo/go-common/orm"
 	"log"
 	"reflect"
 	"strings"
@@ -17,27 +17,21 @@ type Excel interface {
 	Export(interface{}) ([]byte, error)
 }
 
-type A struct {
-	Id   int    `excel:"样本Id"`
-	Code string `excel:"样本编码 uqi"`
-	Name string `excel:"样本名称 required"`
-}
-
 type Entity struct {
-	Model     interface{}
-	SheetName string
-	Title     string  // 标题
-	Rows      []Field // 字段
-	ShowRemind bool  // 显示提示
+	Model      interface{}       // 模型
+	SheetName  string            // 表名
+	Title      string            // 标题
+	Rows       map[string]*Field // 字段名/ 字段
+	ShowRemind bool              //  显示提示
 }
 
 type Field struct {
-	Name     string  // 显示名称
+	Name     string        // 显示名称
 	Value    []interface{} // 值
-	Remind   string // 提示
-	Uqi      bool // 唯一
-	Required bool // 必填
-	Typ      reflect.Type // 类型
+	Remind   string        // 提示
+	Uqi      bool          // 唯一
+	Required bool          // 必填
+	Typ      reflect.Type  // 类型
 }
 
 func (e *Entity) New(sheetName, title string, model interface{}) {
@@ -63,35 +57,40 @@ func (e *Entity) Export(i interface{}) ([]byte, error) {
 	panic("implement me")
 }
 
-func getField(model interface{}) ([]Field, error) {
+func getField(model interface{}) (map[string]*Field, error) {
 	val, is := orm.RefType(model)
 	if !is {
 		return nil, errors.New("must be struct")
 	}
-	fileds := make([]Field, 0)
 	rt := reflect.TypeOf(val)
+	filedsMap := make(map[string]*Field)
+
 	for i := 0; i < rt.NumField(); i++ {
 		// 可以获取到标签/有值
-		tagName := rt.Field(i).Tag.Get("filter")
+		tagName := rt.Field(i).Tag.Get("excel")
 		if tagName != "" {
 			// 字段名称
 			filed := new(Field)
-			tags := strings.Split(rt.Field(i).Name, " ")
+			tags := strings.Split(tagName, " ")
 			if len(tags) >= 1 {
 				filedMap := getFiledMap(tags)
 				// 列名
 				filed.Name = tags[0]
 				// 提示
-				filed.Remind = tags[1]
+				if len(tags) > 1 && strings.HasPrefix(tags[1], "tips") {
+					filed.Remind = strings.TrimPrefix(tags[1], "tips:'")
+					filed.Remind = strings.TrimSuffix(filed.Remind, "'")
+				}
 				// 判断 uqi required
-				_, filed.Required = filedMap["uqi"]
+				_, filed.Uqi = filedMap["uqi"]
 				_, filed.Required = filedMap["required"]
-				filed.Typ = rt
+				// 类型赋值
+				filed.Typ = rt.Field(i).Type
+				filedsMap[tags[0]] = filed
 			}
-			fileds[i] = *filed
 		}
 	}
-	return fileds, nil
+	return filedsMap, nil
 }
 
 // 获取excel 实体对象
