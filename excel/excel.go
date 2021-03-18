@@ -27,12 +27,20 @@ type Entity struct {
 }
 
 type Field struct {
-	Name     string        // 显示名称
+	Name      string // 显示名称
+	FieldName string // 字段名称
+	// FieldMap  map[string]*Site // Map[显示名称]字段名称
 	Value    []interface{} // 值
 	Remind   string        // 提示
 	Uqi      bool          // 唯一
 	Required bool          // 必填
 	Typ      reflect.Type  // 类型
+}
+
+type Site struct {
+	FieldName string // 字段名称
+	ShowName  string // 显示名称
+	Index     int    // 索引
 }
 
 func (e *Entity) New(sheetName, title string, tips bool, model interface{}) {
@@ -73,7 +81,6 @@ func getField(model interface{}) (map[string]*Field, error) {
 	}
 	rt := reflect.TypeOf(val)
 	filedsMap := make(map[string]*Field)
-
 	for i := 0; i < rt.NumField(); i++ {
 		// 可以获取到标签/有值
 		tagName := rt.Field(i).Tag.Get("excel")
@@ -90,11 +97,14 @@ func getField(model interface{}) (map[string]*Field, error) {
 					filed.Remind = strings.TrimPrefix(tags[1], "tips:'")
 					filed.Remind = strings.TrimSuffix(filed.Remind, "'")
 				}
+				// 设置字段名
+				filed.FieldName = rt.Field(i).Name
 				// 判断 uqi required
 				_, filed.Uqi = filedMap["uqi"]
 				_, filed.Required = filedMap["required"]
 				// 类型赋值
 				filed.Typ = rt.Field(i).Type
+				//  字段map
 				filedsMap[tags[0]] = filed
 			}
 		}
@@ -103,8 +113,10 @@ func getField(model interface{}) (map[string]*Field, error) {
 }
 
 // 获取excel 实体对象
-func New(entity interface{}) {
-
+func New(sheetName, title string, tips bool, model interface{}) *Entity {
+	e := new(Entity)
+	e.New(sheetName, title, tips, model)
+	return e
 }
 
 func getFiledMap(tags []string) map[string]struct{} {

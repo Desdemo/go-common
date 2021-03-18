@@ -16,9 +16,15 @@ func Test_getField(t *testing.T) {
 		model interface{}
 	}
 	filesMap := make(map[string]*Field)
-	filesMap["样本Id"] = &Field{Name: "样本Id", Value: nil, Remind: "", Uqi: false, Required: false, Typ: reflect.ValueOf(int(0)).Type()}
-	filesMap["样本编码"] = &Field{Name: "样本编码", Value: nil, Remind: "小提示", Uqi: true, Required: false, Typ: reflect.ValueOf("").Type()}
-	filesMap["样本名称"] = &Field{Name: "样本名称", Value: nil, Remind: "", Uqi: false, Required: true, Typ: reflect.ValueOf("").Type()}
+	filesMap["样本Id"] = &Field{
+		Name: "样本Id", Value: nil, Remind: "", Uqi: false, FieldName: "Id",
+		Required: false, Typ: reflect.ValueOf(int(0)).Type()}
+	filesMap["样本编码"] = &Field{
+		Name: "样本编码", Value: nil, Remind: "小提示", Uqi: true, FieldName: "Code",
+		Required: false, Typ: reflect.ValueOf("").Type()}
+	filesMap["样本名称"] = &Field{
+		Name: "样本名称", Value: nil, Remind: "", Uqi: false, FieldName: "Name",
+		Required: true, Typ: reflect.ValueOf("").Type()}
 	tests := []struct {
 		name    string
 		args    args
