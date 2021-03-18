@@ -129,3 +129,41 @@ func getFiledMap(tags []string) map[string]struct{} {
 	}
 	return filedMap
 }
+
+func (e *Entity) ReadValue(sheet *xlsx.Sheet) (interface{}, error) {
+	/*
+			sheet 第一行为标题
+				  第二行为列名
+		          第三行为提示
+		 		  第四行往后为数据
+	*/
+	// 记录索引位置
+	for k, v := range sheet.Rows[1].Cells {
+		if _, ok := e.Rows[v.Value]; ok {
+			e.Rows[v.Value].Index = k
+		}
+	}
+	// 创建切片值
+	sliceType := reflect.SliceOf(reflect.TypeOf(e.Model))
+	lens := len(sheet.Rows) - 3
+	sliceData := reflect.MakeSlice(sliceType, lens, lens)
+	for i := 3; i < lens; i++ {
+		rv := reflect.ValueOf(e.Model)
+		for _, fie := range e.Rows {
+			switch fie.Typ.Kind() {
+			case reflect.String:
+				rv.Elem().FieldByName(fie.FieldName).SetString(sheet.Rows[i].Cells[fie.Index].Value)
+			case reflect.Int64:
+				value, err := sheet.Rows[i].Cells[fie.Index].Int64()
+				if err != nil {
+					return nil, err
+				}
+				rv.Elem().FieldByName(fie.FieldName).SetInt(value)
+			case reflect.Bool:
+				// todo:布尔值的处理情况, 唯一性校验，必填校验
+			}
+		}
+	}
+
+	return sliceData.Interface(), nil
+}
