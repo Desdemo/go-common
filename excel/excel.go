@@ -35,6 +35,7 @@ type Field struct {
 	Uqi      bool          // 唯一
 	Required bool          // 必填
 	Typ      reflect.Type  // 类型
+	Index    int           // 索引
 }
 
 type Site struct {
