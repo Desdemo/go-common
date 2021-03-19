@@ -1,6 +1,7 @@
 package excel
 
 import (
+	"github.com/tealeg/xlsx"
 	"reflect"
 	"testing"
 )
@@ -50,6 +51,47 @@ func Test_getField(t *testing.T) {
 				}
 			}
 
+		})
+	}
+}
+
+func TestEntity_ReadValue(t *testing.T) {
+	type fields struct {
+		Model      interface{}
+		SheetName  string
+		Title      string
+		Rows       map[string]*Field
+		ShowRemind bool
+	}
+	type args struct {
+		sheet *xlsx.Sheet
+	}
+	tests := []struct {
+		name    string
+		fields  fields
+		args    args
+		want    interface{}
+		wantErr bool
+	}{
+		// TODO: Add test cases.
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			e := &Entity{
+				Model:      tt.fields.Model,
+				SheetName:  tt.fields.SheetName,
+				Title:      tt.fields.Title,
+				Rows:       tt.fields.Rows,
+				ShowRemind: tt.fields.ShowRemind,
+			}
+			got, err := e.ReadValue(tt.args.sheet)
+			if (err != nil) != tt.wantErr {
+				t.Errorf("ReadValue() error = %v, wantErr %v", err, tt.wantErr)
+				return
+			}
+			if !reflect.DeepEqual(got, tt.want) {
+				t.Errorf("ReadValue() got = %v, want %v", got, tt.want)
+			}
 		})
 	}
 }
