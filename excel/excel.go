@@ -150,7 +150,7 @@ func (e *Entity) ReadValue(sheet *xlsx.Sheet) (interface{}, error) {
 	rt := reflect.TypeOf(e.Model).Elem()
 	for i := 3; i < lens; i++ {
 		//rv := reflect.ValueOf(e.Model)
-		rv := reflect.New(rt).Elem()
+		rv := reflect.New(rt)
 		for _, fie := range e.Rows {
 			switch fie.Typ.Kind() {
 			case reflect.String:
