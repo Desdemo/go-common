@@ -147,8 +147,10 @@ func (e *Entity) ReadValue(sheet *xlsx.Sheet) (interface{}, error) {
 	sliceType := reflect.SliceOf(reflect.TypeOf(e.Model))
 	lens := len(sheet.Rows) - 3
 	sliceData := reflect.MakeSlice(sliceType, lens, lens)
+	rt := reflect.TypeOf(e.Model).Elem()
 	for i := 3; i < lens; i++ {
-		rv := reflect.ValueOf(e.Model)
+		//rv := reflect.ValueOf(e.Model)
+		rv := reflect.New(rt).Elem()
 		for _, fie := range e.Rows {
 			switch fie.Typ.Kind() {
 			case reflect.String:
@@ -159,6 +161,12 @@ func (e *Entity) ReadValue(sheet *xlsx.Sheet) (interface{}, error) {
 					return nil, err
 				}
 				rv.Elem().FieldByName(fie.FieldName).SetInt(value)
+			case reflect.Int:
+				value, err := sheet.Rows[i].Cells[fie.Index].Int64()
+				if err != nil {
+					return nil, err
+				}
+				rv.Elem().FieldByName(fie.FieldName).Set(reflect.ValueOf(value))
 			case reflect.Bool:
 				// todo:布尔值的处理情况, 唯一性校验，必填校验
 			}
