@@ -178,13 +178,12 @@ func (e *Entity) ReadValue(sheet *xlsx.Sheet) (interface{}, error) {
 				rv.Elem().FieldByName(fie.FieldName).SetBool(true)
 			case reflect.Ptr:
 				if !isnil {
-					log.Println(fie.Typ, reflect.TypeOf(gtime.Time{}))
+					// 判断类型是否为*gtime.Time
 					if fie.Typ == reflect.TypeOf(&gtime.Time{}) {
 						gt := gtime.NewFromStr(value)
 						rv.Elem().FieldByName(fie.FieldName).Set(reflect.ValueOf(gt))
 					}
 				}
-				// todo: gtime.Time 类型处理
 			}
 		}
 		sliceData.Index(i - 3).Set(rv)
