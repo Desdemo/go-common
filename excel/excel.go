@@ -148,7 +148,7 @@ func (e *Entity) ReadValue(sheet *xlsx.Sheet) (interface{}, error) {
 	lens := len(sheet.Rows) - 3
 	sliceData := reflect.MakeSlice(sliceType, lens, lens)
 	rt := reflect.TypeOf(e.Model).Elem()
-	for i := 3; i < lens; i++ {
+	for i := 3; i < len(sheet.Rows); i++ {
 		//rv := reflect.ValueOf(e.Model)
 		rv := reflect.New(rt)
 		for _, fie := range e.Rows {
