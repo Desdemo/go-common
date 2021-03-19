@@ -163,7 +163,8 @@ func (e *Entity) ReadValue(sheet *xlsx.Sheet) (interface{}, error) {
 				// todo:布尔值的处理情况, 唯一性校验，必填校验
 			}
 		}
-		sliceData.Elem().Set(rv)
+		log.Println(rv)
+		sliceData.Index(i - 3).Set(rv)
 	}
 
 	return sliceData.Interface(), nil
