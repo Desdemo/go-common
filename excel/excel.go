@@ -162,7 +162,7 @@ func (e *Entity) ReadValue(sheet *xlsx.Sheet) (interface{}, error) {
 				}
 				rv.Elem().FieldByName(fie.FieldName).SetInt(value)
 			case reflect.Int:
-				value, err := sheet.Rows[i].Cells[fie.Index].Int64()
+				value, err := sheet.Rows[i].Cells[fie.Index].Int()
 				if err != nil {
 					return nil, err
 				}
