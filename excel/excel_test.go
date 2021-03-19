@@ -1,15 +1,17 @@
 package excel
 
 import (
+	"github.com/gogf/gf/os/gtime"
 	"github.com/tealeg/xlsx"
 	"reflect"
 	"testing"
 )
 
 type A struct {
-	Id   int    `excel:"样本Id"`
-	Code string `excel:"样本编码 tips:'小提示' uqi"`
-	Name string `excel:"样本名称 required"`
+	Id        int         `excel:"样本Id"`
+	Code      string      `excel:"样本编码 tips:'小提示' uqi"`
+	Name      string      `excel:"样本名称 required"`
+	StartTime *gtime.Time `excel:"样本时间 required"`
 }
 
 func Test_getField(t *testing.T) {
@@ -66,6 +68,21 @@ func TestEntity_ReadValue(t *testing.T) {
 	type args struct {
 		sheet *xlsx.Sheet
 	}
+
+	file := New("Sheet2", "", false, new(A))
+	wb, err := xlsx.OpenFile("./1.xlsx")
+	if err != nil {
+		panic(err)
+	}
+	sheet := wb.Sheets[0]
+	wantData := make([]*A, 0)
+	a := &A{
+		Id:        1,
+		Code:      "2021031001",
+		Name:      "box031002",
+		StartTime: gtime.NewFromStr("2021-03-19 11:56:56"),
+	}
+	wantData = append(wantData, a)
 	tests := []struct {
 		name    string
 		fields  fields
@@ -74,6 +91,13 @@ func TestEntity_ReadValue(t *testing.T) {
 		wantErr bool
 	}{
 		// TODO: Add test cases.
+		{"表格读取数据测试", fields{
+			Model:      file.Model,
+			SheetName:  file.SheetName,
+			Title:      file.Title,
+			Rows:       file.Rows,
+			ShowRemind: file.ShowRemind,
+		}, args{sheet: sheet}, wantData, false},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
@@ -89,7 +113,7 @@ func TestEntity_ReadValue(t *testing.T) {
 				t.Errorf("ReadValue() error = %v, wantErr %v", err, tt.wantErr)
 				return
 			}
-			if !reflect.DeepEqual(got, tt.want) {
+			if !reflect.DeepEqual(got.([]*A)[0], tt.want.([]*A)[0]) {
 				t.Errorf("ReadValue() got = %v, want %v", got, tt.want)
 			}
 		})

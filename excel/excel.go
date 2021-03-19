@@ -2,10 +2,13 @@ package excel
 
 import (
 	"errors"
+	"fmt"
 	"github.com/desdemo/go-common/orm"
+	"github.com/gogf/gf/os/gtime"
 	"github.com/tealeg/xlsx"
 	"log"
 	"reflect"
+	"strconv"
 	"strings"
 )
 
@@ -149,31 +152,69 @@ func (e *Entity) ReadValue(sheet *xlsx.Sheet) (interface{}, error) {
 	sliceData := reflect.MakeSlice(sliceType, lens, lens)
 	rt := reflect.TypeOf(e.Model).Elem()
 	for i := 3; i < len(sheet.Rows); i++ {
+
 		//rv := reflect.ValueOf(e.Model)
 		rv := reflect.New(rt)
 		for _, fie := range e.Rows {
+			value, isnil := isNil(sheet.Rows[i].Cells[fie.Index].Value)
+			location := fmt.Sprintf("当前第%v行的%v转换出错", i+1, fie.Name)
 			switch fie.Typ.Kind() {
 			case reflect.String:
-				rv.Elem().FieldByName(fie.FieldName).SetString(sheet.Rows[i].Cells[fie.Index].Value)
+				rv.Elem().FieldByName(fie.FieldName).SetString(value)
 			case reflect.Int64:
-				value, err := sheet.Rows[i].Cells[fie.Index].Int64()
+				n, err := parseInt64(value)
 				if err != nil {
-					return nil, err
+					return nil, errors.New(location + err.Error())
 				}
-				rv.Elem().FieldByName(fie.FieldName).SetInt(value)
+				rv.Elem().FieldByName(fie.FieldName).SetInt(n)
 			case reflect.Int:
-				value, err := sheet.Rows[i].Cells[fie.Index].Int()
+				n, err := parseInt(value)
 				if err != nil {
-					return nil, err
+					return nil, errors.New(location + err.Error())
 				}
-				rv.Elem().FieldByName(fie.FieldName).Set(reflect.ValueOf(value))
+				rv.Elem().FieldByName(fie.FieldName).Set(reflect.ValueOf(n))
 			case reflect.Bool:
 				// todo:布尔值的处理情况, 唯一性校验，必填校验
+				rv.Elem().FieldByName(fie.FieldName).SetBool(true)
+			case reflect.Ptr:
+				if !isnil {
+					log.Println(fie.Typ, reflect.TypeOf(gtime.Time{}))
+					if fie.Typ == reflect.TypeOf(&gtime.Time{}) {
+						gt := gtime.NewFromStr(value)
+						rv.Elem().FieldByName(fie.FieldName).Set(reflect.ValueOf(gt))
+					}
+				}
+				// todo: gtime.Time 类型处理
 			}
 		}
-		log.Println(rv)
 		sliceData.Index(i - 3).Set(rv)
 	}
 
 	return sliceData.Interface(), nil
+}
+
+// 判断是否为空值
+func isNil(value string) (string, bool) {
+	if value == "" {
+		return value, true
+	}
+	return value, false
+}
+
+func parseInt64(value string) (int64, error) {
+	v, no := isNil(value)
+	if no {
+		return 0, nil
+	} else {
+		n, err := strconv.ParseInt(v, 10, 64)
+		if err != nil {
+			return 0, err
+		}
+		return n, nil
+	}
+}
+
+func parseInt(value string) (int, error) {
+	n, err := parseInt64(value)
+	return int(n), err
 }
