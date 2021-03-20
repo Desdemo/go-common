@@ -33,12 +33,13 @@ type Field struct {
 	Name      string // 显示名称
 	FieldName string // 字段名称
 	// FieldMap  map[string]*Site // Map[显示名称]字段名称
-	Value    []interface{} // 值
-	Remind   string        // 提示
-	Uqi      bool          // 唯一
-	Required bool          // 必填
-	Typ      reflect.Type  // 类型
-	Index    int           // 索引
+	Value    []interface{}       // 值
+	UqiMap   map[string]struct{} // 唯一值
+	Remind   string              // 提示
+	Uqi      bool                // 唯一
+	Required bool                // 必填
+	Typ      reflect.Type        // 类型
+	Index    int                 // 索引
 }
 
 type Site struct {
@@ -46,6 +47,11 @@ type Site struct {
 	ShowName  string // 显示名称
 	Index     int    // 索引
 }
+
+var (
+	TypeParseErr = errors.New("数据转换出错")
+	UqiErr       = errors.New("数据存在重复")
+)
 
 func (e *Entity) New(sheetName, title string, tips bool, model interface{}) {
 	if sheetName != "" {
@@ -105,6 +111,7 @@ func getField(model interface{}) (map[string]*Field, error) {
 				filed.FieldName = rt.Field(i).Name
 				// 判断 uqi required
 				_, filed.Uqi = filedMap["uqi"]
+				filed.UqiMap = make(map[string]struct{})
 				_, filed.Required = filedMap["required"]
 				// 类型赋值
 				filed.Typ = rt.Field(i).Type
@@ -152,19 +159,27 @@ func (e *Entity) ReadValue(sheet *xlsx.Sheet) (interface{}, error) {
 	sliceData := reflect.MakeSlice(sliceType, lens, lens)
 	rt := reflect.TypeOf(e.Model).Elem()
 	for i := 3; i < len(sheet.Rows); i++ {
-
 		//rv := reflect.ValueOf(e.Model)
 		rv := reflect.New(rt)
 		for _, fie := range e.Rows {
-			value, isnil := isNil(sheet.Rows[i].Cells[fie.Index].Value)
-			location := fmt.Sprintf("当前第%v行的%v转换出错", i+1, fie.Name)
+			value, isNil := isNil(sheet.Rows[i].Cells[fie.Index].Value)
+			location := fmt.Sprintf("当前第%v行的%v", i+1, fie.Name)
+			if fie.Required && isNil {
+				return nil, errors.New(location + "为必填项")
+			}
+			if fie.Uqi {
+				if _, ok := fie.UqiMap[value]; ok {
+					return nil, errors.New(location + UqiErr.Error())
+				}
+				fie.UqiMap[value] = struct{}{}
+			}
 			switch fie.Typ.Kind() {
 			case reflect.String:
 				rv.Elem().FieldByName(fie.FieldName).SetString(value)
 			case reflect.Int64:
 				n, err := parseInt64(value)
 				if err != nil {
-					return nil, errors.New(location + err.Error())
+					return nil, errors.New(location + TypeParseErr.Error() + err.Error())
 				}
 				rv.Elem().FieldByName(fie.FieldName).SetInt(n)
 			case reflect.Int:
@@ -174,10 +189,10 @@ func (e *Entity) ReadValue(sheet *xlsx.Sheet) (interface{}, error) {
 				}
 				rv.Elem().FieldByName(fie.FieldName).Set(reflect.ValueOf(n))
 			case reflect.Bool:
-				// todo:布尔值的处理情况, 唯一性校验，必填校验
+				// todo:布尔值的处理情况
 				rv.Elem().FieldByName(fie.FieldName).SetBool(true)
 			case reflect.Ptr:
-				if !isnil {
+				if !isNil {
 					// 判断类型是否为*gtime.Time
 					if fie.Typ == reflect.TypeOf(&gtime.Time{}) {
 						gt := gtime.NewFromStr(value)
