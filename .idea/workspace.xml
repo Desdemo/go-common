@@ -1,7 +1,35 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
+  <component name="BranchesTreeState">
+    <expand>
+      <path>
+        <item name="ROOT" type="e8cecc67:BranchNodeDescriptor" />
+        <item name="LOCAL_ROOT" type="e8cecc67:BranchNodeDescriptor" />
+      </path>
+      <path>
+        <item name="ROOT" type="e8cecc67:BranchNodeDescriptor" />
+        <item name="REMOTE_ROOT" type="e8cecc67:BranchNodeDescriptor" />
+      </path>
+      <path>
+        <item name="ROOT" type="e8cecc67:BranchNodeDescriptor" />
+        <item name="REMOTE_ROOT" type="e8cecc67:BranchNodeDescriptor" />
+        <item name="GROUP_NODE:origin" type="e8cecc67:BranchNodeDescriptor" />
+      </path>
+    </expand>
+    <select>
+      <path>
+        <item name="ROOT" type="e8cecc67:BranchNodeDescriptor" />
+        <item name="LOCAL_ROOT" type="e8cecc67:BranchNodeDescriptor" />
+        <item name="BRANCH:main" type="e8cecc67:BranchNodeDescriptor" />
+      </path>
+    </select>
+  </component>
   <component name="ChangeListManager">
-    <list default="true" id="bbb4e668-65d7-4619-aa1d-ef855efdf345" name="Default Changelist" comment="up excel" />
+    <list default="true" id="bbb4e668-65d7-4619-aa1d-ef855efdf345" name="Default Changelist" comment="add excel test">
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/excel/excel.go" beforeDir="false" afterPath="$PROJECT_DIR$/excel/excel.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/excel/excel_test.go" beforeDir="false" afterPath="$PROJECT_DIR$/excel/excel_test.go" afterDir="false" />
+    </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -14,9 +42,10 @@
       </list>
     </option>
   </component>
-  <component name="GOROOT" url="file://$USER_HOME$/go/go1.16" />
+  <component name="GOROOT" path="C:\Users\Desdemo\go\go1.16.2" />
   <component name="Git.Settings">
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
+    <option name="UPDATE_TYPE" value="REBASE" />
   </component>
   <component name="GitSEFilterConfiguration">
     <file-type-list>
@@ -36,7 +65,9 @@
     <option name="showLibraryContents" value="true" />
   </component>
   <component name="PropertiesComponent">
+    <property name="ASKED_ADD_EXTERNAL_FILES" value="true" />
     <property name="DefaultGoTemplateProperty" value="Go File" />
+    <property name="GO_FMT" value="true" />
     <property name="RunOnceActivity.OpenProjectViewOnStart" value="true" />
     <property name="RunOnceActivity.ShowReadmeOnStart" value="true" />
     <property name="WebServerToolWindowFactoryState" value="false" />
@@ -44,7 +75,74 @@
     <property name="go.sdk.automatically.set" value="true" />
     <property name="go.tried.to.enable.integration.vgo.integrator" value="true" />
     <property name="last_opened_file_path" value="$PROJECT_DIR$" />
-    <property name="settings.editor.selected.configurable" value="org.jetbrains.plugins.github.ui.GithubSettingsConfigurable" />
+    <property name="nodejs_package_manager_path" value="npm" />
+    <property name="settings.editor.selected.configurable" value="editor.preferences.fonts.default" />
+  </component>
+  <component name="RunManager" selected="Go Test.Test_getField in github.com/desdemo/go-common/excel">
+    <configuration name="TestEntity_ReadValue in github.com/desdemo/go-common/excel (1)" type="GoTestRunConfiguration" factoryName="Go Test" temporary="true" nameIsGenerated="true">
+      <module name="common" />
+      <working_directory value="$PROJECT_DIR$/excel" />
+      <framework value="gotest" />
+      <kind value="PACKAGE" />
+      <package value="github.com/desdemo/go-common/excel" />
+      <directory value="$PROJECT_DIR$/" />
+      <filePath value="$PROJECT_DIR$/" />
+      <pattern value="^TestEntity_ReadValue$" />
+      <method v="2" />
+    </configuration>
+    <configuration name="TestEntity_ReadValue in github.com/desdemo/go-common/excel (2)" type="GoTestRunConfiguration" factoryName="Go Test" temporary="true" nameIsGenerated="true">
+      <module name="common" />
+      <working_directory value="$PROJECT_DIR$/excel" />
+      <framework value="gotest" />
+      <kind value="PACKAGE" />
+      <package value="github.com/desdemo/go-common/excel" />
+      <directory value="$PROJECT_DIR$" />
+      <filePath value="$PROJECT_DIR$" />
+      <pattern value="^\QTestEntity_ReadValue\E$" />
+      <method v="2" />
+    </configuration>
+    <configuration name="TestEntity_ReadValue/表格数据读取测试 in github.com/desdemo/go-common/excel" type="GoTestRunConfiguration" factoryName="Go Test" temporary="true" nameIsGenerated="true">
+      <module name="common" />
+      <working_directory value="$PROJECT_DIR$/excel" />
+      <framework value="gotest" />
+      <kind value="PACKAGE" />
+      <package value="github.com/desdemo/go-common/excel" />
+      <directory value="$PROJECT_DIR$" />
+      <filePath value="$PROJECT_DIR$" />
+      <pattern value="^\QTestEntity_ReadValue\E$/^\Q表格数据读取测试\E$" />
+      <method v="2" />
+    </configuration>
+    <configuration name="TestEntity_ReadValue/唯一性标签数据测试 in github.com/desdemo/go-common/excel" type="GoTestRunConfiguration" factoryName="Go Test" temporary="true" nameIsGenerated="true">
+      <module name="common" />
+      <working_directory value="$PROJECT_DIR$/excel" />
+      <framework value="gotest" />
+      <kind value="PACKAGE" />
+      <package value="github.com/desdemo/go-common/excel" />
+      <directory value="$PROJECT_DIR$" />
+      <filePath value="$PROJECT_DIR$" />
+      <pattern value="^\QTestEntity_ReadValue\E$/^\Q唯一性标签数据测试\E$" />
+      <method v="2" />
+    </configuration>
+    <configuration name="Test_getField in github.com/desdemo/go-common/excel" type="GoTestRunConfiguration" factoryName="Go Test" temporary="true" nameIsGenerated="true">
+      <module name="common" />
+      <working_directory value="$PROJECT_DIR$/excel" />
+      <framework value="gotest" />
+      <kind value="PACKAGE" />
+      <package value="github.com/desdemo/go-common/excel" />
+      <directory value="$PROJECT_DIR$" />
+      <filePath value="$PROJECT_DIR$" />
+      <pattern value="^\QTest_getField\E$" />
+      <method v="2" />
+    </configuration>
+    <recent_temporary>
+      <list>
+        <item itemvalue="Go Test.Test_getField in github.com/desdemo/go-common/excel" />
+        <item itemvalue="Go Test.TestEntity_ReadValue in github.com/desdemo/go-common/excel (2)" />
+        <item itemvalue="Go Test.TestEntity_ReadValue/表格数据读取测试 in github.com/desdemo/go-common/excel" />
+        <item itemvalue="Go Test.TestEntity_ReadValue/唯一性标签数据测试 in github.com/desdemo/go-common/excel" />
+        <item itemvalue="Go Test.TestEntity_ReadValue in github.com/desdemo/go-common/excel (1)" />
+      </list>
+    </recent_temporary>
   </component>
   <component name="SpellCheckerSettings" RuntimeDictionaries="0" Folders="0" CustomDictionaries="0" DefaultDictionary="application-level" UseSingleDictionary="true" transferred="true" />
   <component name="TypeScriptGeneratedFilesManager">
@@ -55,7 +153,19 @@
       <map>
         <entry key="MAIN">
           <value>
-            <State />
+            <State>
+              <option name="FILTERS">
+                <map>
+                  <entry key="branch">
+                    <value>
+                      <list>
+                        <option value="main" />
+                      </list>
+                    </value>
+                  </entry>
+                </map>
+              </option>
+            </State>
           </value>
         </entry>
       </map>
@@ -65,7 +175,9 @@
   <component name="VcsManagerConfiguration">
     <MESSAGE value="add excel" />
     <MESSAGE value="up excel" />
-    <option name="LAST_COMMIT_MESSAGE" value="up excel" />
+    <MESSAGE value="up excel readValue" />
+    <MESSAGE value="add excel test" />
+    <option name="LAST_COMMIT_MESSAGE" value="add excel test" />
   </component>
   <component name="VgoProject">
     <integration-enabled>true</integration-enabled>

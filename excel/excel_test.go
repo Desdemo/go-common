@@ -70,38 +70,39 @@ func TestEntity_ReadValue(t *testing.T) {
 	}
 	// 新建测试文件
 	rSlice := make([]A, 0)
-	rSliceUqi := make([]A, 0)
-	rSliceRequired1 := make([]A, 0)
-	rSliceRequired2 := make([]A, 0)
-	testA := A{Id: 1, Code: "001", Name: "东东", StartTime: gtime.NewFromStr("2021-03-19 11:56:56")}
+	testCols := []string{"样本Id", "样本编码", "样本名称", "样本时间"}
+	testA := A{Id: 1, Code: "2021031001", Name: "box031002", StartTime: gtime.NewFromStr("2021-03-19 11:56:56")}
 	testB := A{Id: 12, Code: "002", Name: "东东", StartTime: gtime.NewFromStr("2021-03-19 11:56:56")}
-	testUqi := A{Id: 2, Code: "001", Name: "东东", StartTime: gtime.NewFromStr("2021-03-19 11:56:56")}
+	testUqi := A{Id: 2, Code: "2021031001", Name: "东东", StartTime: gtime.NewFromStr("2021-03-19 11:56:56")}
 	testRequired1 := A{Id: 13, Code: "003", StartTime: gtime.NewFromStr("2021-03-19 11:56:56")}
 	testRequired2 := A{Id: 1, Code: "001", Name: "东东"}
 	rSlice = append(rSlice, testA, testB)
-	rSliceUqi = append(rSliceUqi, testA, testB, testUqi)
-	rSliceRequired1 = append(rSliceRequired1, testA, testB, testRequired1)
-	rSliceRequired2 = append(rSliceRequired2, testA, testB, testRequired2)
-	xlseMap := make(map[string]*xlsx.File)
+	xlsxMap := make(map[string]*xlsx.File)
 	fileName := []string{"xFile", "xFileUqi", "xFileRequired1", "xFileRequired2"}
 	for _, f := range fileName {
-		xlseMap[f] = xlsx.NewFile()
-		sheetObj, _ := xlseMap[f].AddSheet("Test1")
+		xlsxMap[f] = xlsx.NewFile()
+		sheetObj, _ := xlsxMap[f].AddSheet("Test1")
 		sheetObj.AddRow()
+		cols := sheetObj.AddRow()
+		cols.WriteSlice(&testCols, -1)
 		sheetObj.AddRow()
-		sheetObj.AddRow()
-		row := sheetObj.AddRow()
-		if f == "xFile" {
-			row.WriteSlice(rSlice, -1)
-		} else if f == "xFileUqi" {
-			row.WriteSlice(rSliceUqi, -1)
+		for _, k := range rSlice {
+			row := sheetObj.AddRow()
+			row.WriteStruct(&k, -1)
+		}
+		if f == "xFileUqi" {
+			row := sheetObj.AddRow()
+			row.WriteStruct(&testUqi, -1)
 		} else if f == "xFileRequired1" {
-			row.WriteSlice(rSliceRequired1, -1)
+			row := sheetObj.AddRow()
+			row.WriteStruct(&testRequired1, -1)
 		} else if f == "xFileRequired2" {
-			row.WriteSlice(rSliceRequired2, -1)
+			row := sheetObj.AddRow()
+			row.WriteStruct(&testRequired2, -1)
 		}
 	}
 	file := New("Sheet2", "", false, new(A))
+	fileData := New("Test1", "", false, new(A))
 	wb, err := xlsx.OpenFile("./1.xlsx")
 	if err != nil {
 		panic(err)
@@ -125,18 +126,18 @@ func TestEntity_ReadValue(t *testing.T) {
 		{"表格文件读取数据测试", fields{Model: file.Model, SheetName: file.SheetName,
 			Title: file.Title, Rows: file.Rows, ShowRemind: file.ShowRemind},
 			args{sheet: sheet}, wantData, false},
-		{"表格数据读取测试", fields{Model: file.Model, SheetName: file.SheetName,
-			Title: file.Title, Rows: file.Rows, ShowRemind: file.ShowRemind},
-			args{sheet: xlseMap["xFile"].Sheet["Test1"]}, wantData, false},
+		{"表格数据读取测试", fields{Model: fileData.Model, SheetName: fileData.SheetName,
+			Title: fileData.Title, Rows: fileData.Rows, ShowRemind: fileData.ShowRemind},
+			args{sheet: xlsxMap["xFile"].Sheet["Test1"]}, wantData, false},
 		{"唯一性标签数据测试", fields{Model: file.Model, SheetName: file.SheetName,
 			Title: file.Title, Rows: file.Rows, ShowRemind: file.ShowRemind},
-			args{sheet: xlseMap["xFileUqi"].Sheet["Test1"]}, wantData, true},
+			args{sheet: xlsxMap["xFileUqi"].Sheet["Test1"]}, nil, true},
 		{"必填标签数据测试1", fields{Model: file.Model, SheetName: file.SheetName,
 			Title: file.Title, Rows: file.Rows, ShowRemind: file.ShowRemind},
-			args{sheet: xlseMap["xFileRequired1"].Sheet["Test1"]}, wantData, true},
+			args{sheet: xlsxMap["xFileRequired1"].Sheet["Test1"]}, nil, true},
 		{"必填标签数据测试2", fields{Model: file.Model, SheetName: file.SheetName,
 			Title: file.Title, Rows: file.Rows, ShowRemind: file.ShowRemind},
-			args{sheet: xlseMap["xFileRequired2"].Sheet["Test1"]}, wantData, true},
+			args{sheet: xlsxMap["xFileRequired2"].Sheet["Test1"]}, nil, true},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
@@ -152,7 +153,7 @@ func TestEntity_ReadValue(t *testing.T) {
 				t.Errorf("ReadValue() error = %v, wantErr %v", err, tt.wantErr)
 				return
 			}
-			if !reflect.DeepEqual(got.([]*A)[0], tt.want.([]*A)[0]) {
+			if got != nil && !reflect.DeepEqual(got.([]*A)[0], tt.want.([]*A)[0]) {
 				t.Errorf("ReadValue() got = %v, want %v", got, tt.want)
 			}
 		})

@@ -159,6 +159,9 @@ func (e *Entity) ReadValue(sheet *xlsx.Sheet) (interface{}, error) {
 	sliceData := reflect.MakeSlice(sliceType, lens, lens)
 	rt := reflect.TypeOf(e.Model).Elem()
 	for i := 3; i < len(sheet.Rows); i++ {
+		if sheet.Rows[i].Cells == nil {
+			continue
+		}
 		//rv := reflect.ValueOf(e.Model)
 		rv := reflect.New(rt)
 		for _, fie := range e.Rows {
@@ -167,7 +170,7 @@ func (e *Entity) ReadValue(sheet *xlsx.Sheet) (interface{}, error) {
 			if fie.Required && isNil {
 				return nil, errors.New(location + "为必填项")
 			}
-			if fie.Uqi {
+			if fie.Uqi && !isNil {
 				if _, ok := fie.UqiMap[value]; ok {
 					return nil, errors.New(location + UqiErr.Error())
 				}
