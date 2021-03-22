@@ -72,7 +72,7 @@ func TestEntity_ReadValue(t *testing.T) {
 	rSlice := make([]A, 0)
 	testCols := []string{"样本Id", "样本编码", "样本名称", "样本时间"}
 	testA := A{Id: 1, Code: "2021031001", Name: "box031002", StartTime: gtime.NewFromStr("2021-03-19 11:56:56")}
-	testB := A{Id: 12, Code: "002", Name: "东东", StartTime: gtime.NewFromStr("2021-03-19 11:56:56")}
+	testB := A{Id: 12, Code: "002", Name: "东东" /*StartTime: gtime.NewFromStr("2021-03-19 11:56:56")*/}
 	testUqi := A{Id: 2, Code: "2021031001", Name: "东东", StartTime: gtime.NewFromStr("2021-03-19 11:56:56")}
 	testRequired1 := A{Id: 13, Code: "003", StartTime: gtime.NewFromStr("2021-03-19 11:56:56")}
 	testRequired2 := A{Id: 1, Code: "001", Name: "东东"}

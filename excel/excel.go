@@ -71,8 +71,21 @@ func (e *Entity) New(sheetName, title string, tips bool, model interface{}) {
 
 func (e *Entity) Import(bytes []byte) (interface{}, error) {
 	// Unmarshal
-
-	return nil, nil
+	file, err := xlsx.OpenBinary(bytes)
+	if err != nil {
+		return nil, err
+	}
+	var sheet *xlsx.Sheet
+	if _, ok := file.Sheet[e.SheetName]; ok {
+		sheet = file.Sheet[e.SheetName]
+	} else {
+		sheet = file.Sheets[0]
+	}
+	data, err := e.ReadValue(sheet)
+	if err != nil {
+		return nil, err
+	}
+	return data, nil
 }
 
 func (e *Entity) Unmarshal(row *xlsx.Row) error {
@@ -165,7 +178,11 @@ func (e *Entity) ReadValue(sheet *xlsx.Sheet) (interface{}, error) {
 		//rv := reflect.ValueOf(e.Model)
 		rv := reflect.New(rt)
 		for _, fie := range e.Rows {
-			value, isNil := isNil(sheet.Rows[i].Cells[fie.Index].Value)
+			cellValue := ""
+			if fie.Index < len(sheet.Rows[i].Cells) {
+				cellValue = sheet.Rows[i].Cells[fie.Index].Value
+			}
+			value, isNil := isNil(cellValue)
 			location := fmt.Sprintf("当前第%v行的%v", i+1, fie.Name)
 			if fie.Required && isNil {
 				return nil, errors.New(location + "为必填项")
