@@ -25,7 +25,7 @@ type A struct {
 
 ## 表格说明
 
-![image-20210322165959614](https://gitee.com/desdemo/blog-image/raw/master/img/image-20210322165959614.png)
+![image-20210322170734425](C:%5CUsers%5CEDZ%5Cwp%5Ccode%5Cgo-common%5Cexcel%5Cimage-20210322170734425.png)
 
 ## 说明：
 
