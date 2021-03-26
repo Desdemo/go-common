@@ -14,7 +14,7 @@ import (
 
 // 导出
 type Excel interface {
-	New(sheetName, title string, model interface{})
+	New(sheetName, title string, tips bool, model interface{})
 	// 导入
 	Import([]byte) (interface{}, error)
 	// 导出
@@ -88,13 +88,20 @@ func (e *Entity) Import(bytes []byte) (interface{}, error) {
 	return data, nil
 }
 
-func (e *Entity) Unmarshal(row *xlsx.Row) error {
+func (e *Entity) Export(i interface{}) ([]byte, error) {
 
-	return nil
+	return nil, nil
 }
 
-func (e *Entity) Export(i interface{}) ([]byte, error) {
-	panic("implement me")
+func (e *Entity) addSheet(data interface{}) {
+	filename := e.SheetName + ".xlsx"
+	wb, err := xlsx.OpenFile(filename)
+	if err != nil {
+		panic(err)
+	}
+	sh, err := wb.AddSheet("My New Sheet")
+	fmt.Println(err)
+	fmt.Println(sh)
 }
 
 func getField(model interface{}) (map[string]*Field, error) {
