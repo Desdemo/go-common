@@ -152,7 +152,7 @@ func (e *Entity) SetValue(sheet *xlsx.Sheet, data interface{}) error {
 		titleRow := sheet.AddRow()
 		titleCell := titleRow.AddCell()
 		titleCell.SetString(e.Title)
-		titleCell.Merge(0, rv.Len())
+		titleCell.Merge(len(e.Fields), 0)
 		for i := 0; i < rv.Len()+1; i++ {
 			row := sheet.AddRow()
 			for _, v := range e.Fields {
