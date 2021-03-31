@@ -96,7 +96,7 @@ func (e *Entity) Import(bytes []byte) (interface{}, error) {
 func (e *Entity) Export(i interface{}) ([]byte, error) {
 	if isEqual(e.Model, i) {
 		file := xlsx.NewFile()
-		sheet, err := e.addSheet(file, i)
+		sheet, err := e.addSheet(file)
 		if err != nil {
 			return nil, err
 		}
@@ -115,8 +115,7 @@ func (e *Entity) Export(i interface{}) ([]byte, error) {
 	return nil, nil
 }
 
-func (e *Entity) addSheet(wb *xlsx.File, data interface{}) (*xlsx.Sheet, error) {
-
+func (e *Entity) addSheet(wb *xlsx.File) (*xlsx.Sheet, error) {
 	sh, err := wb.AddSheet(e.SheetName)
 	if err != nil {
 		return nil, err
@@ -152,7 +151,7 @@ func (e *Entity) SetValue(sheet *xlsx.Sheet, data interface{}) error {
 		titleRow := sheet.AddRow()
 		titleCell := titleRow.AddCell()
 		titleCell.SetString(e.Title)
-		titleCell.Merge(len(e.Fields), 0)
+		titleCell.Merge(len(e.Fields)-1, 0)
 		for i := 0; i < rv.Len()+1; i++ {
 			row := sheet.AddRow()
 			for _, v := range e.Fields {
