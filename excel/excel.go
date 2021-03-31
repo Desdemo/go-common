@@ -3,13 +3,14 @@ package excel
 import (
 	"errors"
 	"fmt"
-	"github.com/desdemo/go-common/orm"
-	"github.com/gogf/gf/os/gtime"
-	"github.com/tealeg/xlsx"
 	"log"
 	"reflect"
 	"strconv"
 	"strings"
+
+	"github.com/desdemo/go-common/orm"
+	"github.com/gogf/gf/os/gtime"
+	"github.com/tealeg/xlsx"
 )
 
 // 导出
@@ -25,21 +26,21 @@ type Entity struct {
 	Model      interface{}       // 模型
 	SheetName  string            // 表名
 	Title      string            // 标题
-	Rows       map[string]*Field // 字段名/ 字段
+	Rows       map[string]*Field // 字段表格显示名/ 字段
+	Fields     map[string]*Field // 字段名称 / 字段
 	ShowRemind bool              //  显示提示
 }
 
 type Field struct {
-	Name      string // 显示名称
-	FieldName string // 字段名称
-	// FieldMap  map[string]*Site // Map[显示名称]字段名称
-	Value    []interface{}       // 值
-	UqiMap   map[string]struct{} // 唯一值
-	Remind   string              // 提示
-	Uqi      bool                // 唯一
-	Required bool                // 必填
-	Typ      reflect.Type        // 类型
-	Index    int                 // 索引
+	Name      string              // 显示名称
+	FieldName string              // 字段名称
+	Value     []interface{}       // 值
+	UqiMap    map[string]struct{} // 唯一值
+	Remind    string              // 提示
+	Uqi       bool                // 唯一
+	Required  bool                // 必填
+	Typ       reflect.Type        // 类型
+	Index     int                 // 索引
 }
 
 type Site struct {
@@ -51,6 +52,7 @@ type Site struct {
 var (
 	TypeParseErr = errors.New("数据转换出错")
 	UqiErr       = errors.New("数据存在重复")
+	CreateErr    = errors.New("创建表信息失败")
 )
 
 func (e *Entity) New(sheetName, title string, tips bool, model interface{}) {
@@ -61,11 +63,12 @@ func (e *Entity) New(sheetName, title string, tips bool, model interface{}) {
 		e.Title = title
 	}
 	e.Model = model
-	fields, err := getField(model)
+	rows, fields, err := getField(model)
 	if err != nil {
 		log.Fatal(err)
 	}
-	e.Rows = fields
+	e.Rows = rows
+	e.Fields = fields
 	e.ShowRemind = tips
 }
 
@@ -89,28 +92,95 @@ func (e *Entity) Import(bytes []byte) (interface{}, error) {
 }
 
 func (e *Entity) Export(i interface{}) ([]byte, error) {
+	if isEqual(e.Model, i) {
+		filename := e.SheetName + ".xlsx"
+		wb, err := xlsx.OpenFile(filename)
+		if err != nil {
+			return nil, err
+		}
+		sheet, err := e.addSheet(wb, i)
+		if err != nil {
+			return nil, err
+		}
+		if sheet == nil {
+			return nil, CreateErr
+		}
+		e.SetValue(sheet, i)
 
+		wb.Save("/")
+	}
 	return nil, nil
 }
 
-func (e *Entity) addSheet(data interface{}) {
-	filename := e.SheetName + ".xlsx"
-	wb, err := xlsx.OpenFile(filename)
+func (e *Entity) addSheet(wb *xlsx.File, data interface{}) (*xlsx.Sheet, error) {
+
+	sh, err := wb.AddSheet(e.SheetName)
 	if err != nil {
-		panic(err)
+		return nil, err
 	}
-	sh, err := wb.AddSheet("My New Sheet")
-	fmt.Println(err)
-	fmt.Println(sh)
+	return sh, nil
 }
 
-func getField(model interface{}) (map[string]*Field, error) {
+func isEqual(model, data interface{}) bool {
+	pv := reflect.ValueOf(model)
+	rv := reflect.ValueOf(data)
+	switch rv.Kind() {
+	case reflect.Slice:
+		if rv.Len() > 0 {
+			return isEqual(model, rv.Index(0).Interface())
+		}
+		return false
+	case reflect.Ptr:
+		return isEqual(model, rv.Elem().Interface())
+	case reflect.Struct:
+		if rv.Type().String() == pv.Elem().Type().String() {
+			return true
+		}
+		return false
+	}
+	return false
+}
+
+func (e *Entity) SetValue(sheet *xlsx.Sheet, data interface{}) error {
+	rv := reflect.ValueOf(data)
+
+	switch rv.Kind() {
+	case reflect.Slice:
+		titleRow := sheet.AddRow()
+		titleCell := titleRow.AddCell()
+		titleCell.SetString(e.Title)
+		titleCell.Merge(0, rv.Len())
+		for i := 0; i < rv.Len()+1; i++ {
+			row := sheet.AddRow()
+			for _, v := range e.Fields {
+				if i == 0 {
+					colCell := row.AddCell()
+					colCell.SetString(v.Name)
+				} else {
+					index := i - 1
+					cell := row.AddCell()
+					if !rv.Index(index).FieldByName(v.FieldName).IsValid() {
+						cell.SetValue(reflect.Zero(v.Typ))
+					} else {
+						cell.SetValue(rv.Index(index).FieldByName(v.FieldName))
+					}
+				}
+
+			}
+		}
+		log.Println(sheet)
+	}
+	return nil
+}
+
+func getField(model interface{}) (rowsMap, fieldsMap map[string]*Field, err error) {
 	val, is := orm.RefType(model)
 	if !is {
-		return nil, errors.New("must be struct")
+		return nil, nil, errors.New("must be struct")
 	}
 	rt := reflect.TypeOf(val)
-	filedsMap := make(map[string]*Field)
+	fieldsMap = make(map[string]*Field)
+	rowsMap = make(map[string]*Field)
 	for i := 0; i < rt.NumField(); i++ {
 		// 可以获取到标签/有值
 		tagName := rt.Field(i).Tag.Get("excel")
@@ -136,11 +206,12 @@ func getField(model interface{}) (map[string]*Field, error) {
 				// 类型赋值
 				filed.Typ = rt.Field(i).Type
 				//  字段map
-				filedsMap[tags[0]] = filed
+				rowsMap[tags[0]] = filed
+				fieldsMap[rt.Field(i).Name] = filed
 			}
 		}
 	}
-	return filedsMap, nil
+	return rowsMap, fieldsMap, nil
 }
 
 // 获取excel 实体对象

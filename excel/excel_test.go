@@ -1,10 +1,11 @@
 package excel
 
 import (
-	"github.com/gogf/gf/os/gtime"
-	"github.com/tealeg/xlsx"
 	"reflect"
 	"testing"
+
+	"github.com/gogf/gf/os/gtime"
+	"github.com/tealeg/xlsx"
 )
 
 type A struct {
@@ -28,6 +29,9 @@ func Test_getField(t *testing.T) {
 	filesMap["样本名称"] = &Field{
 		Name: "样本名称", Value: nil, Remind: "", Uqi: false, FieldName: "Name",
 		Required: true, Typ: reflect.ValueOf("").Type()}
+	filesMap["样本时间"] = &Field{
+		Name: "样本时间", Value: nil, Remind: "", Uqi: false, FieldName: "StartTime",
+		Required: false, Typ: reflect.ValueOf(gtime.Now()).Type()}
 	tests := []struct {
 		name    string
 		args    args
@@ -39,17 +43,20 @@ func Test_getField(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			got, err := getField(tt.args.model)
+			gotRows, gotFields, err := getField(tt.args.model)
 			if (err != nil) != tt.wantErr {
 				t.Errorf("getField() error = %v, wantErr %v", err, tt.wantErr)
 				return
 			}
-			if !reflect.DeepEqual(len(got), len(tt.want)) {
-				t.Errorf("get length got = %v, want %v", len(got), len(tt.want))
+			if !reflect.DeepEqual(len(gotRows), len(tt.want)) {
+				t.Errorf("get length gotRows = %v, want %v", len(gotRows), len(tt.want))
 			}
-			for _, i := range got {
+			if !reflect.DeepEqual(len(gotFields), len(tt.want)) {
+				t.Errorf("get length gotFields = %v, want %v", len(gotFields), len(tt.want))
+			}
+			for _, i := range gotRows {
 				if !reflect.DeepEqual(i, tt.want[i.Name]) {
-					t.Errorf("getField detail got = %v, want %v", i, tt.want[i.Name])
+					t.Errorf("getField detail gotRows = %v, want %v", i, tt.want[i.Name])
 				}
 			}
 
@@ -155,6 +162,55 @@ func TestEntity_ReadValue(t *testing.T) {
 			}
 			if got != nil && !reflect.DeepEqual(got.([]*A)[0], tt.want.([]*A)[0]) {
 				t.Errorf("ReadValue() got = %v, want %v", got, tt.want)
+			}
+		})
+	}
+}
+
+func TestEntity_SetValue(t *testing.T) {
+	e := New("xx", "test", false, new(A))
+	data01 := []A{
+		{Id: 1, Code: "2021031001", Name: "box031002",
+			StartTime: gtime.NewFromStr("2021-03-19 11:56:56")},
+		{Id: 2, Code: "2021031003", Name: "box031004",
+			StartTime: gtime.NewFromStr("2021-03-19 11:56:56")}}
+
+	xls := xlsx.NewFile()
+	sheet, _ := xls.AddSheet(e.SheetName)
+	type fields struct {
+		Model      interface{}
+		SheetName  string
+		Title      string
+		Rows       map[string]*Field
+		Fields     map[string]*Field
+		ShowRemind bool
+	}
+	f1 := fields{
+		Model:      e.Model,
+		SheetName:  e.SheetName,
+		Title:      e.Title,
+		Rows:       e.Rows,
+		Fields:     e.Fields,
+		ShowRemind: false,
+	}
+	type args struct {
+		sheet *xlsx.Sheet
+		data  interface{}
+	}
+	tests := []struct {
+		name    string
+		fields  fields
+		args    args
+		wantErr bool
+	}{
+		{"普通切片测试", f1, args{sheet, data01}, false},
+		// TODO: Add test cases.
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			e := e
+			if err := e.SetValue(tt.args.sheet, tt.args.data); (err != nil) != tt.wantErr {
+				t.Errorf("SetValue() error = %v, wantErr %v", err, tt.wantErr)
 			}
 		})
 	}
