@@ -1,6 +1,8 @@
 package excel
 
 import (
+	"bufio"
+	"bytes"
 	"errors"
 	"fmt"
 	"log"
@@ -93,21 +95,22 @@ func (e *Entity) Import(bytes []byte) (interface{}, error) {
 
 func (e *Entity) Export(i interface{}) ([]byte, error) {
 	if isEqual(e.Model, i) {
-		filename := e.SheetName + ".xlsx"
-		wb, err := xlsx.OpenFile(filename)
-		if err != nil {
-			return nil, err
-		}
-		sheet, err := e.addSheet(wb, i)
+		file := xlsx.NewFile()
+		sheet, err := e.addSheet(file, i)
 		if err != nil {
 			return nil, err
 		}
 		if sheet == nil {
 			return nil, CreateErr
 		}
-		e.SetValue(sheet, i)
-
-		wb.Save("/")
+		err = e.SetValue(sheet, i)
+		if err != nil {
+			return nil, err
+		}
+		var b bytes.Buffer
+		writer := bufio.NewWriter(&b)
+		file.Write(writer)
+		return b.Bytes(), nil
 	}
 	return nil, nil
 }
