@@ -115,6 +115,28 @@ func (e *Entity) Export(i interface{}) ([]byte, error) {
 	return nil, nil
 }
 
+func (e *Entity) ExportFile(i interface{}, fullPath string) error {
+	if isEqual(e.Model, i) {
+		file := xlsx.NewFile()
+		sheet, err := e.addSheet(file)
+		if err != nil {
+			return err
+		}
+		if sheet == nil {
+			return CreateErr
+		}
+		err = e.SetValue(sheet, i)
+		if err != nil {
+			return err
+		}
+		err = file.Save(fullPath)
+		if err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
 func (e *Entity) addSheet(wb *xlsx.File) (*xlsx.Sheet, error) {
 	sh, err := wb.AddSheet(e.SheetName)
 	if err != nil {
