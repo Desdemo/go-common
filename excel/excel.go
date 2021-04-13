@@ -217,11 +217,11 @@ func getField(model interface{}) (rowsMap, fieldsMap map[string]*Field, err erro
 	rt := reflect.TypeOf(val)
 	fieldsMap = make(map[string]*Field)
 	rowsMap = make(map[string]*Field)
+	index := 0
 	for i := 0; i < rt.NumField(); i++ {
 		// 可以获取到标签/有值
 		tagName := rt.Field(i).Tag.Get("excel")
 		if tagName != "" {
-			index := 0
 			// 字段名称
 			filed := new(Field)
 			tags := strings.Split(tagName, " ")
