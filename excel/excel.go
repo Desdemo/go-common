@@ -183,13 +183,11 @@ func (e *Entity) SetValue(sheet *xlsx.Sheet, data interface{}) error {
 		}
 		for i := 0; i < rv.Len()+1; i++ {
 			row := sheet.AddRow()
-			//for k, _ := range e.Fields {
 			for _, col := range colList {
 				if i == 0 {
 					colCell := row.AddCell()
 					colCell.SetString(e.Fields[col].Name)
 				} else {
-					log.Println(e.Fields[col].FieldName, e.Fields[col].Name)
 					index := i - 1
 					cell := row.AddCell()
 					if !rv.Index(index).FieldByName(e.Fields[col].FieldName).IsValid() {
@@ -198,8 +196,6 @@ func (e *Entity) SetValue(sheet *xlsx.Sheet, data interface{}) error {
 						cell.SetValue(rv.Index(index).FieldByName(e.Fields[col].FieldName))
 					}
 				}
-				//}
-
 			}
 		}
 
