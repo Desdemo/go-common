@@ -169,6 +169,8 @@ func (e *Entity) SetValue(sheet *xlsx.Sheet, data interface{}) error {
 	rv := reflect.ValueOf(data)
 
 	switch rv.Kind() {
+	case reflect.Ptr:
+		return e.SetValue(sheet, rv.Elem().Interface())
 	case reflect.Slice:
 		titleRow := sheet.AddRow()
 		titleCell := titleRow.AddCell()
@@ -192,7 +194,6 @@ func (e *Entity) SetValue(sheet *xlsx.Sheet, data interface{}) error {
 
 			}
 		}
-		log.Println(sheet)
 	}
 	return nil
 }
