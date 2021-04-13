@@ -221,6 +221,7 @@ func getField(model interface{}) (rowsMap, fieldsMap map[string]*Field, err erro
 		// 可以获取到标签/有值
 		tagName := rt.Field(i).Tag.Get("excel")
 		if tagName != "" {
+			index := 0
 			// 字段名称
 			filed := new(Field)
 			tags := strings.Split(tagName, " ")
@@ -242,10 +243,12 @@ func getField(model interface{}) (rowsMap, fieldsMap map[string]*Field, err erro
 				// 类型赋值
 				filed.Typ = rt.Field(i).Type
 				// 索引位置
-				filed.Index = i
+				filed.Index = index
 				//  字段map
 				rowsMap[tags[0]] = filed
 				fieldsMap[rt.Field(i).Name] = filed
+
+				index++
 			}
 		}
 	}
