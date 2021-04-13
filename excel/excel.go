@@ -55,6 +55,7 @@ var (
 	TypeParseErr = errors.New("数据转换出错")
 	UqiErr       = errors.New("数据存在重复")
 	CreateErr    = errors.New("创建表信息失败")
+	UnKnowType   = errors.New("未知类型,解析失败")
 )
 
 func (e *Entity) New(sheetName, title string, tips bool, model interface{}) {
@@ -176,24 +177,34 @@ func (e *Entity) SetValue(sheet *xlsx.Sheet, data interface{}) error {
 		titleCell := titleRow.AddCell()
 		titleCell.SetString(e.Title)
 		titleCell.Merge(len(e.Fields)-1, 0)
+		colList := make([]string, len(e.Fields))
+		for k, v := range e.Fields {
+			colList[v.Index] = k
+		}
 		for i := 0; i < rv.Len()+1; i++ {
 			row := sheet.AddRow()
-			for k, _ := range e.Fields {
+			//for k, _ := range e.Fields {
+			for _, col := range colList {
 				if i == 0 {
 					colCell := row.AddCell()
-					colCell.SetString(e.Fields[k].Name)
+					colCell.SetString(e.Fields[col].Name)
 				} else {
+					log.Println(e.Fields[col].FieldName, e.Fields[col].Name)
 					index := i - 1
 					cell := row.AddCell()
-					if !rv.Index(index).FieldByName(e.Fields[k].FieldName).IsValid() {
-						cell.SetValue(reflect.Zero(e.Fields[k].Typ))
+					if !rv.Index(index).FieldByName(e.Fields[col].FieldName).IsValid() {
+						cell.SetValue(reflect.Zero(e.Fields[col].Typ))
 					} else {
-						cell.SetValue(rv.Index(index).FieldByName(e.Fields[k].FieldName))
+						cell.SetValue(rv.Index(index).FieldByName(e.Fields[col].FieldName))
 					}
 				}
+				//}
 
 			}
 		}
+
+	default:
+		return UnKnowType
 	}
 	return nil
 }
@@ -230,6 +241,8 @@ func getField(model interface{}) (rowsMap, fieldsMap map[string]*Field, err erro
 				_, filed.Required = filedMap["required"]
 				// 类型赋值
 				filed.Typ = rt.Field(i).Type
+				// 索引位置
+				filed.Index = i
 				//  字段map
 				rowsMap[tags[0]] = filed
 				fieldsMap[rt.Field(i).Name] = filed
