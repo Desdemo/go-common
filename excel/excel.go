@@ -178,17 +178,17 @@ func (e *Entity) SetValue(sheet *xlsx.Sheet, data interface{}) error {
 		titleCell.Merge(len(e.Fields)-1, 0)
 		for i := 0; i < rv.Len()+1; i++ {
 			row := sheet.AddRow()
-			for _, v := range e.Fields {
+			for k, _ := range e.Fields {
 				if i == 0 {
 					colCell := row.AddCell()
-					colCell.SetString(v.Name)
+					colCell.SetString(e.Fields[k].Name)
 				} else {
 					index := i - 1
 					cell := row.AddCell()
-					if !rv.Index(index).FieldByName(v.FieldName).IsValid() {
-						cell.SetValue(reflect.Zero(v.Typ))
+					if !rv.Index(index).FieldByName(e.Fields[k].FieldName).IsValid() {
+						cell.SetValue(reflect.Zero(e.Fields[k].Typ))
 					} else {
-						cell.SetValue(rv.Index(index).FieldByName(v.FieldName))
+						cell.SetValue(rv.Index(index).FieldByName(e.Fields[k].FieldName))
 					}
 				}
 
