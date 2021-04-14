@@ -85,3 +85,14 @@ func HandleUploadFile(c *gin.Context) {
 
 ```
 
+### 导出
+
+```go
+// 导出文件流
+dataByte, err := excel.New(sheetName, title, tips, model).Export(data)
+	if err != nil {
+		return nil, err
+	}
+	return dataByte, err
+```
+
