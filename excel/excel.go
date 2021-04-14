@@ -113,7 +113,7 @@ func (e *Entity) Export(i interface{}) ([]byte, error) {
 		file.Write(writer)
 		return b.Bytes(), nil
 	}
-	return nil, nil
+	return nil, UnKnowType
 }
 
 func (e *Entity) ExportFile(i interface{}, fullPath string) error {

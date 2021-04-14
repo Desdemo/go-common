@@ -15,6 +15,10 @@ type A struct {
 	StartTime *gtime.Time `excel:"样本时间"`
 }
 
+type B struct {
+	Name string
+}
+
 func Test_getField(t *testing.T) {
 	type args struct {
 		model interface{}
@@ -211,6 +215,32 @@ func TestEntity_SetValue(t *testing.T) {
 			e := e
 			if err := e.SetValue(tt.args.sheet, tt.args.data); (err != nil) != tt.wantErr {
 				t.Errorf("SetValue() error = %v, wantErr %v", err, tt.wantErr)
+			}
+		})
+	}
+}
+
+func Test_isEqual(t *testing.T) {
+	type args struct {
+		model interface{}
+		data  interface{}
+	}
+
+	list01 := make([]B, 2)
+	list02 := make([]B, 2)
+
+	tests := []struct {
+		name string
+		args args
+		want bool
+	}{
+		{"类型测试01", args{model: new(B), data: list01}, true},
+		{"类型测试02", args{model: new(B), data: &list02}, true},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			if got := isEqual(tt.args.model, tt.args.data); got != tt.want {
+				t.Errorf("isEqual() = %v, want %v", got, tt.want)
 			}
 		})
 	}
