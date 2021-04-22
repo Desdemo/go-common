@@ -193,12 +193,13 @@ func (e *Entity) SetValue(sheet *xlsx.Sheet, data interface{}) error {
 					if !rv.Index(index).FieldByName(e.Fields[col].FieldName).IsValid() {
 						cell.SetValue(reflect.Zero(e.Fields[col].Typ))
 					} else {
-						if e.Fields[col].Typ.Kind() == reflect.Float64 {
-							// 数值型转为string
-							cell.SetValue(rv.Index(index).FieldByName(e.Fields[col].FieldName).String())
-						} else {
-							cell.SetValue(rv.Index(index).FieldByName(e.Fields[col].FieldName))
-						}
+						//if e.Fields[col].Typ.Kind() == reflect.Float64 || e.Fields[col].Typ.Kind() == reflect.Int {
+						//	// 数值型转为string
+						//	cell.SetValue(rv.Index(index).FieldByName(e.Fields[col].FieldName).Interface())
+						//} else {
+						//	cell.SetValue(rv.Index(index).FieldByName(e.Fields[col].FieldName).Interface())
+						//}
+						cell.SetValue(rv.Index(index).FieldByName(e.Fields[col].FieldName).Interface())
 					}
 				}
 			}

@@ -174,9 +174,9 @@ func TestEntity_ReadValue(t *testing.T) {
 func TestEntity_SetValue(t *testing.T) {
 	e := New("xx", "test", false, new(A))
 	data01 := []A{
-		{Id: 1, Code: "2021031001", Name: "box031002",
+		{Id: 12345678, Code: "2021031001", Name: "box031002",
 			StartTime: gtime.NewFromStr("2021-03-19 11:56:56")},
-		{Id: 2, Code: "2021031003", Name: "box031004",
+		{Id: 12345678, Code: "2021031003", Name: "box031004",
 			StartTime: gtime.NewFromStr("2021-03-19 11:56:56")}}
 
 	xls := xlsx.NewFile()
