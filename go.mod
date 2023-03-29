@@ -4,7 +4,8 @@ go 1.16
 
 require (
 	github.com/frankban/quicktest v1.14.4 // indirect
-	github.com/gogf/gf v1.15.3
+	github.com/gogf/gf v1.16.9
+	github.com/gomodule/redigo v2.0.0+incompatible // indirect
 	github.com/google/btree v1.1.2 // indirect
 	github.com/mattn/go-runewidth v0.0.13 // indirect
 	github.com/rogpeppe/go-internal v1.10.0 // indirect
