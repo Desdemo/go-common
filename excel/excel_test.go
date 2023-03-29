@@ -1,11 +1,11 @@
 package excel
 
 import (
+	"github.com/tealeg/xlsx/v3"
 	"reflect"
 	"testing"
 
 	"github.com/gogf/gf/os/gtime"
-	"github.com/tealeg/xlsx"
 )
 
 type A struct {

@@ -5,6 +5,7 @@ import (
 	"bytes"
 	"errors"
 	"fmt"
+	"github.com/tealeg/xlsx/v3"
 	"log"
 	"reflect"
 	"strconv"
@@ -12,15 +13,14 @@ import (
 
 	"github.com/desdemo/go-common/orm"
 	"github.com/gogf/gf/os/gtime"
-	"github.com/tealeg/xlsx"
 )
 
-// 导出
+// Excel 导出
 type Excel interface {
 	New(sheetName, title string, tips bool, model interface{})
-	// 导入
+	//Import 导入
 	Import([]byte) (interface{}, error)
-	// 导出
+	//Export 导出
 	Export(interface{}) ([]byte, error)
 }
 
@@ -194,6 +194,11 @@ func (e *Entity) SetValue(sheet *xlsx.Sheet, data interface{}) error {
 						cell.SetValue(reflect.Zero(e.Fields[col].Typ))
 					} else {
 						if e.Fields[col].Typ.Kind() == reflect.Float64 {
+							//style := xlsx.NewStyle()
+							//style.NamedStyleIndex
+							//style.NumberFormat = 0x03 // 数值格式为 "#,##0.00"
+							//style.
+							//	cell.SetStyle(style)
 							// 数值型转为string
 							cell.SetFloat(rv.Index(index).FieldByName(e.Fields[col].FieldName).Float())
 						} else {
@@ -281,27 +286,32 @@ func (e *Entity) ReadValue(sheet *xlsx.Sheet) (interface{}, error) {
 		 		  第四行往后为数据
 	*/
 	// 记录索引位置
-	for k, v := range sheet.Rows[1].Cells {
-		if _, ok := e.Rows[v.Value]; ok {
-			e.Rows[v.Value].Index = k
+	row, _ := sheet.Row(1)
+	err := row.ForEachCell(func(c *xlsx.Cell) error {
+		if _, ok := e.Rows[c.Value]; ok {
+			x, _ := c.GetCoordinates()
+			e.Rows[c.Value].Index = x
 		}
+		return nil
+	})
+	if err != nil {
+		return nil, err
 	}
 	// 创建切片值
 	sliceType := reflect.SliceOf(reflect.TypeOf(e.Model))
-	lens := len(sheet.Rows) - 3
+	lens := sheet.MaxRow - 3
 	sliceData := reflect.MakeSlice(sliceType, lens, lens)
 	rt := reflect.TypeOf(e.Model).Elem()
-	for i := 3; i < len(sheet.Rows); i++ {
-		if sheet.Rows[i].Cells == nil {
+	for i := 3; i < sheet.MaxRow; i++ {
+		cells, _ := sheet.Row(i)
+		if cells == nil {
 			continue
 		}
-		//rv := reflect.ValueOf(e.Model)
 		rv := reflect.New(rt)
 		for _, fie := range e.Rows {
 			cellValue := ""
-			if fie.Index < len(sheet.Rows[i].Cells) {
-				cellValue = sheet.Rows[i].Cells[fie.Index].Value
-			}
+			cells, _ := sheet.Row(i)
+			cellValue = cells.GetCell(fie.Index).Value
 			value, isNil := isNil(cellValue)
 			location := fmt.Sprintf("当前第%v行的%v", i+1, fie.Name)
 			if fie.Required && isNil {
@@ -371,4 +381,9 @@ func parseInt64(value string) (int64, error) {
 func parseInt(value string) (int, error) {
 	n, err := parseInt64(value)
 	return int(n), err
+}
+
+// Flush 缓存写入
+func Flush() {
+
 }
