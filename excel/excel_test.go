@@ -178,7 +178,11 @@ func TestEntity_SetValue(t *testing.T) {
 			StartTime: gtime.NewFromStr("2021-03-19 11:56:56")},
 		{Id: 12345678, Code: "2021031003", Name: "box031004",
 			StartTime: gtime.NewFromStr("2021-03-19 11:56:56")}}
-
+	data02 := []*A{
+		{Id: 12345678, Code: "2021031001", Name: "box031002",
+			StartTime: gtime.NewFromStr("2021-03-19 11:56:56")},
+		{Id: 12345678, Code: "2021031003", Name: "box031004",
+			StartTime: gtime.NewFromStr("2021-03-19 11:56:56")}}
 	xls := xlsx.NewFile()
 	sheet, _ := xls.AddSheet(e.SheetName)
 	type fields struct {
@@ -208,7 +212,7 @@ func TestEntity_SetValue(t *testing.T) {
 		wantErr bool
 	}{
 		{"普通切片测试", f1, args{sheet, data01}, false},
-		// TODO: Add test cases.
+		{"地址切片测试", f1, args{sheet, data02}, false},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {

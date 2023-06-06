@@ -190,19 +190,17 @@ func (e *Entity) SetValue(sheet *xlsx.Sheet, data interface{}) error {
 				} else {
 					index := i - 1
 					cell := row.AddCell()
-					if !rv.Index(index).FieldByName(e.Fields[col].FieldName).IsValid() {
+					cellValue := reflect.Value{}
+					if rv.Index(index).Kind() == reflect.Ptr {
+						cellValue = reflect.ValueOf(rv.Index(index).Elem().Interface())
+					}
+					if !cellValue.FieldByName(e.Fields[col].FieldName).IsValid() {
 						cell.SetValue(reflect.Zero(e.Fields[col].Typ))
 					} else {
 						if e.Fields[col].Typ.Kind() == reflect.Float64 {
-							//style := xlsx.NewStyle()
-							//style.NamedStyleIndex
-							//style.NumberFormat = 0x03 // 数值格式为 "#,##0.00"
-							//style.
-							//	cell.SetStyle(style)
-							// 数值型转为string
-							cell.SetFloat(rv.Index(index).FieldByName(e.Fields[col].FieldName).Float())
+							cell.SetFloat(cellValue.FieldByName(e.Fields[col].FieldName).Float())
 						} else {
-							cell.SetValue(rv.Index(index).FieldByName(e.Fields[col].FieldName).Interface())
+							cell.SetValue(cellValue.FieldByName(e.Fields[col].FieldName).Interface())
 						}
 					}
 				}
