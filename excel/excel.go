@@ -5,14 +5,15 @@ import (
 	"bytes"
 	"errors"
 	"fmt"
-	"github.com/tealeg/xlsx/v3"
 	"log"
 	"reflect"
 	"strconv"
 	"strings"
 
-	"github.com/desdemo/go-common/orm"
 	"github.com/gogf/gf/os/gtime"
+	xlsx "github.com/tealeg/xlsx/v3"
+
+	"github.com/desdemo/go-common/orm"
 )
 
 // Excel 导出
@@ -191,18 +192,22 @@ func (e *Entity) SetValue(sheet *xlsx.Sheet, data interface{}) error {
 					index := i - 1
 					cell := row.AddCell()
 					cellValue := reflect.Value{}
+					var cellVal interface{}
 					if rv.Index(index).Kind() == reflect.Ptr {
 						cellValue = reflect.ValueOf(rv.Index(index).Elem().Interface())
+					} else {
+						cellValue = reflect.ValueOf(rv.Index(index).Interface())
 					}
 					if !cellValue.FieldByName(e.Fields[col].FieldName).IsValid() {
-						cell.SetValue(reflect.Zero(e.Fields[col].Typ))
+						cellVal = reflect.Zero(e.Fields[col].Typ)
 					} else {
 						if e.Fields[col].Typ.Kind() == reflect.Float64 {
-							cell.SetFloat(cellValue.FieldByName(e.Fields[col].FieldName).Float())
+							cellVal = cellValue.FieldByName(e.Fields[col].FieldName).Float()
 						} else {
-							cell.SetValue(cellValue.FieldByName(e.Fields[col].FieldName).Interface())
+							cellVal = cellValue.FieldByName(e.Fields[col].FieldName).Interface()
 						}
 					}
+					cell.SetValue(cellVal)
 				}
 			}
 		}
@@ -259,7 +264,7 @@ func getField(model interface{}) (rowsMap, fieldsMap map[string]*Field, err erro
 	return rowsMap, fieldsMap, nil
 }
 
-// 获取excel 实体对象
+// New 获取excel 实体对象
 func New(sheetName, title string, tips bool, model interface{}) *Entity {
 	e := new(Entity)
 	e.New(sheetName, title, tips, model)
