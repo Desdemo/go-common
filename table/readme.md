@@ -12,10 +12,10 @@ go get -u github.com/desdemo/go-common
 
 ```go
 type A struct {
-	Id        int         `excel:"样本Id"`
-	Code      string      `excel:"样本编码 tips:'小提示' uqi required"`
-	Name      string      `excel:"样本名称 required"`
-	StartTime *gtime.Time `excel:"样本时间"`
+	Id        int         `table:"样本Id"`
+	Code      string      `table:"样本编码 tips:'小提示' uqi required"`
+	Name      string      `table:"样本名称 required"`
+	StartTime *gtime.Time `table:"样本时间"`
 }
 // 标签中第一个为表格名称 
 // 标签中第二个为表格提示
@@ -48,10 +48,10 @@ import (
 )
 
 type A struct {
-	Id        int         `excel:"样本Id"`
-	Code      string      `excel:"样本编码 tips:'小提示' uqi required"`
-	Name      string      `excel:"样本名称 required"`
-	StartTime *gtime.Time `excel:"样本时间"`
+	Id        int         `table:"样本Id"`
+	Code      string      `table:"样本编码 tips:'小提示' uqi required"`
+	Name      string      `table:"样本名称 required"`
+	StartTime *gtime.Time `table:"样本时间"`
 }
 
 func main() {

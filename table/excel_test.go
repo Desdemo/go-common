@@ -1,4 +1,4 @@
-package excel
+package table
 
 import (
 	"github.com/tealeg/xlsx/v3"
@@ -9,10 +9,10 @@ import (
 )
 
 type A struct {
-	Id        int         `excel:"样本Id"`
-	Code      string      `excel:"样本编码 tips:'小提示' uqi required"`
-	Name      string      `excel:"样本名称 required"`
-	StartTime *gtime.Time `excel:"样本时间"`
+	Id        int         `table:"样本Id"`
+	Code      string      `table:"样本编码 tips:'小提示' uqi required"`
+	Name      string      `table:"样本名称 required"`
+	StartTime *gtime.Time `table:"样本时间"`
 }
 
 type B struct {

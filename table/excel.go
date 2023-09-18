@@ -1,29 +1,16 @@
-package excel
+package table
 
 import (
 	"bufio"
 	"bytes"
 	"errors"
 	"fmt"
+	"github.com/gogf/gf/os/gtime"
+	xlsx "github.com/tealeg/xlsx/v3"
 	"log"
 	"reflect"
 	"strconv"
-	"strings"
-
-	"github.com/gogf/gf/os/gtime"
-	xlsx "github.com/tealeg/xlsx/v3"
-
-	"github.com/desdemo/go-common/orm"
 )
-
-// Excel 导出
-type Excel interface {
-	New(sheetName, title string, tips bool, model interface{})
-	//Import 导入
-	Import([]byte) (interface{}, error)
-	//Export 导出
-	Export(interface{}) ([]byte, error)
-}
 
 type Entity struct {
 	Model      interface{}       // 模型
@@ -32,18 +19,6 @@ type Entity struct {
 	Rows       map[string]*Field // 字段表格显示名/ 字段
 	Fields     map[string]*Field // 字段名称 / 字段
 	ShowRemind bool              //  显示提示
-}
-
-type Field struct {
-	Name      string              // 显示名称
-	FieldName string              // 字段名称
-	Value     []interface{}       // 值
-	UqiMap    map[string]struct{} // 唯一值
-	Remind    string              // 提示
-	Uqi       bool                // 唯一
-	Required  bool                // 必填
-	Typ       reflect.Type        // 类型
-	Index     int                 // 索引
 }
 
 type Site struct {
@@ -116,6 +91,10 @@ func (e *Entity) Export(i interface{}) ([]byte, error) {
 	}
 	return nil, UnKnowType
 }
+
+func (e *Entity) StreamWriter() {}
+
+func (e *Entity) Flush() {}
 
 func (e *Entity) ExportFile(i interface{}, fullPath string) error {
 	if isEqual(e.Model, i) {
@@ -216,52 +195,6 @@ func (e *Entity) SetValue(sheet *xlsx.Sheet, data interface{}) error {
 		return UnKnowType
 	}
 	return nil
-}
-
-func getField(model interface{}) (rowsMap, fieldsMap map[string]*Field, err error) {
-	val, is := orm.RefType(model)
-	if !is {
-		return nil, nil, errors.New("must be struct")
-	}
-	rt := reflect.TypeOf(val)
-	fieldsMap = make(map[string]*Field)
-	rowsMap = make(map[string]*Field)
-	index := 0
-	for i := 0; i < rt.NumField(); i++ {
-		// 可以获取到标签/有值
-		tagName := rt.Field(i).Tag.Get("excel")
-		if tagName != "" {
-			// 字段名称
-			filed := new(Field)
-			tags := strings.Split(tagName, " ")
-			if len(tags) >= 1 {
-				filedMap := getFiledMap(tags)
-				// 列名
-				filed.Name = tags[0]
-				// 提示
-				if len(tags) > 1 && strings.HasPrefix(tags[1], "tips") {
-					filed.Remind = strings.TrimPrefix(tags[1], "tips:'")
-					filed.Remind = strings.TrimSuffix(filed.Remind, "'")
-				}
-				// 设置字段名
-				filed.FieldName = rt.Field(i).Name
-				// 判断 uqi required
-				_, filed.Uqi = filedMap["uqi"]
-				filed.UqiMap = make(map[string]struct{})
-				_, filed.Required = filedMap["required"]
-				// 类型赋值
-				filed.Typ = rt.Field(i).Type
-				// 索引位置
-				filed.Index = index
-				//  字段map
-				rowsMap[tags[0]] = filed
-				fieldsMap[rt.Field(i).Name] = filed
-
-				index++
-			}
-		}
-	}
-	return rowsMap, fieldsMap, nil
 }
 
 // New 获取excel 实体对象
