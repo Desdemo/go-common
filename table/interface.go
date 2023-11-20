@@ -7,8 +7,4 @@ type Excel interface {
 	Import([]byte) (interface{}, error)
 	//Export 导出
 	Export(interface{}) ([]byte, error)
-	// StreamWriter 开始流式写入
-	StreamWriter()
-	// Flush 流式写入
-	Flush()
 }
