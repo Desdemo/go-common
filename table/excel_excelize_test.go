@@ -3,6 +3,7 @@ package table
 import (
 	"github.com/gogf/gf/os/gtime"
 	"math/rand"
+	"os"
 	"strconv"
 	"testing"
 )
@@ -64,7 +65,7 @@ func TestExcellingEntity_Export(t *testing.T) {
 }
 
 func TestExcellingEntity_ExportFile(t *testing.T) {
-	e := Newlize("数据表", "列表数据", false, new(A))
+	e := Newlize("Sheet1", "列表数据", false, new(A))
 	data01 := []A{
 		{Id: 12345678, Code: "2021031001", Name: "box031002",
 			StartTime: gtime.NewFromStr("2021-03-19 11:56:56")},
@@ -91,6 +92,38 @@ func TestExcellingEntity_ExportFile(t *testing.T) {
 			if err := e.ExportFile(tt.args.i); (err != nil) != tt.wantErr {
 				t.Errorf("ExportFile() error = %v, wantErr %v", err, tt.wantErr)
 			}
+		})
+	}
+}
+
+func TestExcellingEntity_Import(t *testing.T) {
+	e := Newlize("Sheet1", "列表数据", true, new(A))
+	//testDir := "./" // 当前目录
+	//filePath := filepath.Join(testDir,"data.txt")
+
+	dataByte, err := os.ReadFile("1.xlsx")
+	if err != nil {
+		t.Error(err)
+	}
+
+	type args struct {
+		data []byte
+	}
+	tests := []struct {
+		name    string
+		args    args
+		wantErr bool
+	}{
+		{"test", args{data: dataByte}, false},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			got, err := e.Import(tt.args.data)
+			if (err != nil) != tt.wantErr {
+				t.Errorf("Import() error = %v, wantErr %v", err, tt.wantErr)
+				return
+			}
+			t.Logf("%+v", got)
 		})
 	}
 }

@@ -17,6 +17,7 @@ type Field struct {
 	Required  bool                // 必填
 	Typ       reflect.Type        // 类型
 	Index     int                 // 索引
+	Col       string              // 列索引
 }
 
 func getField(model interface{}) (rowsMap, fieldsMap map[string]*Field, err error) {

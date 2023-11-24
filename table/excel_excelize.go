@@ -50,13 +50,57 @@ func (e *ExcellingEntity) Import(data []byte) (interface{}, error) {
 	if err != nil {
 		return nil, err
 	}
-	index, err := f.GetSheetIndex(e.Option.SheetName)
+	rows, err := f.Rows(e.Option.SheetName)
 	if err != nil {
 		return nil, err
 	}
-	f.SetActiveSheet(index)
+	// 创建切片值
+	sliceType := reflect.SliceOf(reflect.TypeOf(e.Model))
+	sliceData := reflect.MakeSlice(sliceType, 0, 0)
+	count, skip := 0, 0
+	if e.Option.ShowRemind {
+		skip = 3
+	} else {
+		skip = 2
+	}
+	// 行迭代
+	for rows.Next() {
 
-	f.GetRows()
+		count += 1
+		// 提取字段索引
+		if count == 2 {
+			row, err := rows.Columns()
+			if err != nil {
+				return nil, err
+			}
+			for k, colCell := range row {
+				if _, ok := e.Rows[colCell]; ok {
+					e.Rows[colCell].Col, _ = numberToLetters(k + 1)
+				}
+			}
+		}
+
+		if skip >= count {
+			continue
+		}
+		// meta
+		rt := reflect.TypeOf(e.Model).Elem()
+		rv := reflect.New(rt)
+		cell := strconv.Itoa(count)
+		for _, v := range e.Rows {
+			val, err := f.GetCellValue(e.Option.SheetName, v.Col+cell)
+			if err != nil {
+				return nil, err
+			}
+			rv.Elem().FieldByName(v.FieldName).Set(reflect.ValueOf(val))
+		}
+		sliceData.Index(count - skip).Set(rv)
+
+	}
+	if err = rows.Close(); err != nil {
+		return nil, err
+	}
+	return sliceData.Interface(), nil
 }
 
 func (e *ExcellingEntity) Export(i interface{}) ([]byte, error) {
@@ -258,6 +302,13 @@ func (e *ExcellingEntity) ExportFile(i interface{}) error {
 	f.DeleteSheet("Sheet1")
 	if err := f.SaveAs(e.Option.SheetName + ".xlsx"); err != nil {
 		return err
+	}
+	return nil
+}
+
+func convertStringToType(val string, typ reflect.Type) interface{} {
+	switch typ.Kind() {
+
 	}
 	return nil
 }
