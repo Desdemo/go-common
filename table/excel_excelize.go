@@ -4,10 +4,12 @@ import (
 	"bufio"
 	"bytes"
 	"fmt"
+	"github.com/spf13/cast"
 	"github.com/xuri/excelize/v2"
 	"log"
 	"reflect"
 	"strconv"
+	"time"
 )
 
 type Options struct {
@@ -54,18 +56,16 @@ func (e *ExcellingEntity) Import(data []byte) (interface{}, error) {
 	if err != nil {
 		return nil, err
 	}
-	// 创建切片值
-	sliceType := reflect.SliceOf(reflect.TypeOf(e.Model))
-	sliceData := reflect.MakeSlice(sliceType, 0, 0)
+
 	count, skip := 0, 0
 	if e.Option.ShowRemind {
 		skip = 3
 	} else {
 		skip = 2
 	}
+	li := make([]reflect.Value, 0)
 	// 行迭代
 	for rows.Next() {
-
 		count += 1
 		// 提取字段索引
 		if count == 2 {
@@ -92,13 +92,19 @@ func (e *ExcellingEntity) Import(data []byte) (interface{}, error) {
 			if err != nil {
 				return nil, err
 			}
-			rv.Elem().FieldByName(v.FieldName).Set(reflect.ValueOf(val))
+			metaValue := convertStringToType(val, v.Typ)
+			rv.Elem().FieldByName(v.FieldName).Set(reflect.ValueOf(metaValue))
 		}
-		sliceData.Index(count - skip).Set(rv)
-
+		li = append(li, rv)
 	}
 	if err = rows.Close(); err != nil {
 		return nil, err
+	}
+	// 创建切片值
+	sliceType := reflect.SliceOf(reflect.TypeOf(e.Model))
+	sliceData := reflect.MakeSlice(sliceType, count-skip, count-skip)
+	for k, v := range li {
+		sliceData.Index(k).Set(v)
 	}
 	return sliceData.Interface(), nil
 }
@@ -308,7 +314,22 @@ func (e *ExcellingEntity) ExportFile(i interface{}) error {
 
 func convertStringToType(val string, typ reflect.Type) interface{} {
 	switch typ.Kind() {
-
+	case reflect.String:
+		return cast.ToString(val)
+	case reflect.Int64:
+		return cast.ToInt64(val)
+	case reflect.Int:
+		return cast.ToInt(val)
+	case reflect.Bool:
+		return cast.ToBool(val)
+	case reflect.Float64:
+		return cast.ToFloat64(val)
+	case reflect.Struct:
+		if reflect.TypeOf(time.Time{}) == typ {
+			return cast.ToTimeInDefaultLocation(val, time.Local)
+		}
+		return val
+	default:
+		return reflect.Zero(typ)
 	}
-	return nil
 }

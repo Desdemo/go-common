@@ -4,6 +4,7 @@ import (
 	"github.com/tealeg/xlsx/v3"
 	"reflect"
 	"testing"
+	"time"
 
 	"github.com/gogf/gf/os/gtime"
 )
@@ -13,6 +14,13 @@ type A struct {
 	Code      string      `table:"样本编码 tips:'小提示' uqi required"`
 	Name      string      `table:"样本名称 required"`
 	StartTime *gtime.Time `table:"样本时间"`
+}
+
+type As struct {
+	Id        int       `table:"样本Id"`
+	Code      string    `table:"样本编码 tips:'小提示' uqi required"`
+	Name      string    `table:"样本名称 required"`
+	StartTime time.Time `table:"样本时间"`
 }
 
 type B struct {

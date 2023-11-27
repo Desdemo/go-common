@@ -4,8 +4,10 @@ import (
 	"github.com/gogf/gf/os/gtime"
 	"math/rand"
 	"os"
+	"reflect"
 	"strconv"
 	"testing"
+	"time"
 )
 
 func TestExcellingEntity_SetValue(t *testing.T) {
@@ -97,7 +99,7 @@ func TestExcellingEntity_ExportFile(t *testing.T) {
 }
 
 func TestExcellingEntity_Import(t *testing.T) {
-	e := Newlize("Sheet1", "列表数据", true, new(A))
+	e := Newlize("Sheet1", "列表数据", true, new(As))
 	//testDir := "./" // 当前目录
 	//filePath := filepath.Join(testDir,"data.txt")
 
@@ -123,7 +125,43 @@ func TestExcellingEntity_Import(t *testing.T) {
 				t.Errorf("Import() error = %v, wantErr %v", err, tt.wantErr)
 				return
 			}
-			t.Logf("%+v", got)
+			x := got.([]*As)
+			for _, v := range x {
+				t.Logf("%+v\n", v)
+			}
+
+		})
+	}
+}
+
+func Test_convertStringToType(t *testing.T) {
+
+	timeWant, _ := time.Parse(time.DateTime, "2016-12-23 12:12:00")
+
+	type args struct {
+		val string
+		typ reflect.Type
+	}
+	tests := []struct {
+		name string
+		args args
+		want interface{}
+	}{
+		{"str", args{val: "A", typ: reflect.TypeOf("A")}, "A"},
+		{"time", args{
+			val: "2016-12-23 12:12:00", typ: reflect.TypeOf(timeWant)},
+			timeWant},
+		{"default_time", args{
+			val: "", typ: reflect.TypeOf(timeWant)},
+			time.Time{}},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			got := convertStringToType(tt.args.val, tt.args.typ)
+			t.Log(got)
+			if !reflect.DeepEqual(got, tt.want) {
+				t.Errorf("convertStringToType() = %v, want %v", got, tt.want)
+			}
 		})
 	}
 }
