@@ -81,10 +81,22 @@ func TestExcellingEntity_ExportFile(t *testing.T) {
 		{Id: 12345678, Code: "2021031003", Name: "box031004",
 			StartTime: timeParse("2021-03-19 11:56:56")}}
 
+	data02 := make([]A, 0)
+
 	for i := 0; i < 1000000; i++ {
-		data01 = append(data01, A{Id: int(rand.Int63n(100000000)),
+		data02 = append(data02, A{Id: int(rand.Int63n(100000000)),
 			Name: strconv.Itoa(int(rand.Int63n(100000000)))})
 	}
+
+	data03 := []*A{
+		{Id: 12345678, Code: "2021031001", Name: "box031002",
+			StartTime: timeParse("2021-03-19 11:56:56")},
+		{Id: 12345678, Code: "2021031001", Name: "box031002"},
+		{Id: 12345678, Code: "2021031003", Name: "box031004",
+			StartTime: timeParse("2021-03-19 11:56:56")},
+	}
+	data04 := make([]*A, 0)
+
 	type args struct {
 		i interface{}
 	}
@@ -94,6 +106,8 @@ func TestExcellingEntity_ExportFile(t *testing.T) {
 		wantErr bool
 	}{
 		{"test", args{i: data01}, false},
+		{"slice ptr", args{i: data03}, false},
+		{"empty slice", args{i: data04}, false},
 	}
 
 	for _, tt := range tests {
@@ -143,7 +157,7 @@ func TestExcellingEntity_Import(t *testing.T) {
 
 func Test_convertStringToType(t *testing.T) {
 
-	timeWant, _ := time.Parse(time.DateTime, "2016-12-23 12:12:00")
+	timeWant, _ := time.Parse("2006-01-02 15:04:05", "2016-12-23 12:12:00")
 
 	type args struct {
 		val string

@@ -195,17 +195,24 @@ func (e *ExcellingEntity) SetValue(data interface{}) error {
 					cellValue = e.Fields[col].Name
 				} else {
 					index := i - 3
-					rfval := reflect.ValueOf(rv.Index(index).Interface()).FieldByName(e.Fields[col].FieldName)
-
+					rval := reflect.ValueOf(rv.Index(index).Interface())
+					if rval.Kind() == reflect.Ptr {
+						rval = rval.Elem()
+					}
+					rfval := rval.FieldByName(e.Fields[col].FieldName)
 					if !rfval.IsZero() {
 						x := rfval.Interface()
 						cellValue = x
+						if e.Fields[col].Typ == reflect.TypeOf(time.Time{}) {
+							cellTime := cellValue.(time.Time)
+							cellValue = cellTime.Format("2006-01-02 15:04:05")
+						}
+					} else {
+						cellValue = ""
 					}
-
 				}
 				vals = append(vals, cellValue)
 			}
-
 			err := e.Sw.SetRow(cell, vals)
 			if err != nil {
 				return err

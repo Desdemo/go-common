@@ -1,16 +1,22 @@
 package excel
 
-import "reflect"
+import (
+	"reflect"
+)
 
 func isEqual(model, data interface{}) bool {
 	pv := reflect.ValueOf(model)
 	rv := reflect.ValueOf(data)
 	switch rv.Kind() {
 	case reflect.Slice:
-		if rv.Len() > 0 {
-			return isEqual(model, rv.Index(0).Interface())
+		if pv.Type() == reflect.TypeOf(data).Elem() {
+			return true
+		}
+		if pv.Type().Kind() == reflect.Ptr {
+			return pv.Type().Elem() == reflect.TypeOf(data).Elem()
 		}
 		return false
+
 	case reflect.Ptr:
 		return isEqual(model, rv.Elem().Interface())
 	case reflect.Struct:
