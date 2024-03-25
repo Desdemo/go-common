@@ -4,15 +4,13 @@ import (
 	"reflect"
 	"testing"
 	"time"
-
-	"github.com/gogf/gf/v2/os/gtime"
 )
 
 type A struct {
-	Id        int         `excel:"样本Id"`
-	Code      string      `excel:"样本编码 tips:'小提示' uqi required"`
-	Name      string      `excel:"样本名称 required"`
-	StartTime *gtime.Time `excel:"样本时间"`
+	Id        int       `excel:"样本Id"`
+	Code      string    `excel:"样本编码 tips:'小提示' uqi required"`
+	Name      string    `excel:"样本名称 required"`
+	StartTime time.Time `excel:"样本时间"`
 }
 
 type As struct {
@@ -42,7 +40,7 @@ func Test_getField(t *testing.T) {
 		Required: true, Typ: reflect.ValueOf("").Type()}
 	filesMap["样本时间"] = &Field{
 		Name: "样本时间", Value: nil, Remind: "", Uqi: false, FieldName: "StartTime",
-		Required: false, Typ: reflect.ValueOf(gtime.Now()).Type()}
+		Required: false, Typ: reflect.ValueOf(time.Now()).Type()}
 	tests := []struct {
 		name    string
 		args    args

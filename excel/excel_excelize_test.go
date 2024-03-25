@@ -1,7 +1,6 @@
 package excel
 
 import (
-	"github.com/gogf/gf/v2/os/gtime"
 	"math/rand"
 	"os"
 	"reflect"
@@ -10,13 +9,18 @@ import (
 	"time"
 )
 
+func timeParse(str string) time.Time {
+	parseTime, _ := time.Parse("2006-01-02 15:04:05", str)
+	return parseTime
+}
+
 func TestExcellingEntity_SetValue(t *testing.T) {
 	e := Newlize("xx", "test", false, new(A))
 	data01 := []A{
 		{Id: 12345678, Code: "2021031001", Name: "box031002",
-			StartTime: gtime.NewFromStr("2021-03-19 11:56:56")},
+			StartTime: timeParse("2021-03-19 11:56:56")},
 		{Id: 12345678, Code: "2021031003", Name: "box031004",
-			StartTime: gtime.NewFromStr("2021-03-19 11:56:56")}}
+			StartTime: timeParse("2021-03-19 11:56:56")}}
 	type args struct {
 		data interface{}
 	}
@@ -40,9 +44,11 @@ func TestExcellingEntity_Export(t *testing.T) {
 	e := Newlize("xx", "test", false, new(A))
 	data01 := []A{
 		{Id: 12345678, Code: "2021031001", Name: "box031002",
-			StartTime: gtime.NewFromStr("2021-03-19 11:56:56")},
+			StartTime: timeParse("2021-03-19 11:56:56")},
 		{Id: 12345678, Code: "2021031003", Name: "box031004",
-			StartTime: gtime.NewFromStr("2021-03-19 11:56:56")}}
+			StartTime: timeParse("2021-03-19 11:56:56")},
+		{Id: 7777777, Code: "77777", Name: "7777"},
+	}
 
 	type args struct {
 		i interface{}
@@ -70,10 +76,10 @@ func TestExcellingEntity_ExportFile(t *testing.T) {
 	e := Newlize("Sheet1", "列表数据", false, new(A))
 	data01 := []A{
 		{Id: 12345678, Code: "2021031001", Name: "box031002",
-			StartTime: gtime.NewFromStr("2021-03-19 11:56:56")},
+			StartTime: timeParse("2021-03-19 11:56:56")},
 		{Id: 12345678, Code: "2021031001", Name: "box031002"},
 		{Id: 12345678, Code: "2021031003", Name: "box031004",
-			StartTime: gtime.NewFromStr("2021-03-19 11:56:56")}}
+			StartTime: timeParse("2021-03-19 11:56:56")}}
 
 	for i := 0; i < 1000000; i++ {
 		data01 = append(data01, A{Id: int(rand.Int63n(100000000)),
@@ -89,6 +95,7 @@ func TestExcellingEntity_ExportFile(t *testing.T) {
 	}{
 		{"test", args{i: data01}, false},
 	}
+
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			if err := e.ExportFile(tt.args.i); (err != nil) != tt.wantErr {

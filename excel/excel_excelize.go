@@ -195,8 +195,13 @@ func (e *ExcellingEntity) SetValue(data interface{}) error {
 					cellValue = e.Fields[col].Name
 				} else {
 					index := i - 3
-					x := reflect.ValueOf(rv.Index(index).Interface()).FieldByName(e.Fields[col].FieldName).Interface()
-					cellValue = x
+					rfval := reflect.ValueOf(rv.Index(index).Interface()).FieldByName(e.Fields[col].FieldName)
+
+					if !rfval.IsZero() {
+						x := rfval.Interface()
+						cellValue = x
+					}
+
 				}
 				vals = append(vals, cellValue)
 			}
