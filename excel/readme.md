@@ -41,7 +41,7 @@ package main
 import (
 	"github.com/desdemo/go-common/excel"
 	"github.com/gin-gonic/gin"
-	"github.com/gogf/gf/os/gtime"
+	"github.com/gogf/gf/v2/os/gtime"
 	"io/ioutil"
 	"log"
 	"net/http"

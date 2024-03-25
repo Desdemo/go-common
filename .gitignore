@@ -17,3 +17,5 @@
 # vendor/
 
 /go.sum
+workspace.xml
+.idea
