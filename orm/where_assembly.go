@@ -2,10 +2,10 @@ package orm
 
 import (
 	"errors"
-	"github.com/gogf/gf/os/gtime"
+	"github.com/gogf/gf/v2/os/gtime"
 	"reflect"
 
-	"github.com/gogf/gf/database/gdb"
+	"github.com/gogf/gf/v2/database/gdb"
 )
 
 func OrmPipe(model *gdb.Model, value interface{}) (*gdb.Model, error) {

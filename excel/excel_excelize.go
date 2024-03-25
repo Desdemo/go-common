@@ -1,4 +1,4 @@
-package table
+package excel
 
 import (
 	"bufio"
@@ -27,6 +27,12 @@ type ExcellingEntity struct {
 	Sw       *excelize.StreamWriter
 	Option   Options
 	RowStyle excelize.Style
+}
+
+func New(sheetName, title string, tips bool, model interface{}) *ExcellingEntity {
+	e := new(ExcellingEntity)
+	e.New(sheetName, title, tips, model)
+	return e
 }
 
 func (e *ExcellingEntity) New(sheetName, title string, tips bool, model interface{}) {
@@ -207,7 +213,7 @@ func (e *ExcellingEntity) SetValue(data interface{}) error {
 
 	err := e.Sw.AddTable(&excelize.Table{
 		Range:             "A2:" + rangeBottoms,
-		Name:              "table",
+		Name:              "excel",
 		StyleName:         "TableStyleMedium2",
 		ShowFirstColumn:   true,
 		ShowLastColumn:    true,

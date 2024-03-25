@@ -1,7 +1,7 @@
-package table
+package excel
 
 import (
-	"github.com/gogf/gf/os/gtime"
+	"github.com/gogf/gf/v2/os/gtime"
 	"math/rand"
 	"os"
 	"reflect"

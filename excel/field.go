@@ -1,4 +1,4 @@
-package table
+package excel
 
 import (
 	"errors"
@@ -31,7 +31,7 @@ func getField(model interface{}) (rowsMap, fieldsMap map[string]*Field, err erro
 	index := 0
 	for i := 0; i < rt.NumField(); i++ {
 		// 可以获取到标签/有值
-		tagName := rt.Field(i).Tag.Get("table")
+		tagName := rt.Field(i).Tag.Get("excel")
 		if tagName != "" {
 			// 字段名称
 			filed := new(Field)

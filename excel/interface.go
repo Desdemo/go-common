@@ -1,4 +1,4 @@
-package table
+package excel
 
 // Excel 导出
 type Excel interface {
